@@ -24,9 +24,11 @@
     <PackageReference Include="lz4net" Version="1.0.15.93" />
     <PackageReference Include="MoonSharp" Version="2.0.0" />
     <PackageReference Include="MySql.Data" Version="8.0.10-rc" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="python" Version="3.7.0-b3" />
     <PackageReference Include="Quartz" Version="3.0.4" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0-preview1-26216-02" />
+    <PackageReference Include="System.Xml.ReaderWriter" Version="4.3.1" />
     <PackageReference Include="Yinyue200.Corefx.CodePages" Version="1.0.0" />
   </ItemGroup>
 

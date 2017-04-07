@@ -86,13 +86,13 @@ namespace Common.Buffer
         private byte[] str2ASCII(String xmlStr)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            return Encoding.GetEncoding("GB2312").GetBytes(xmlStr);
+            return Encoding.GetEncoding("GBK").GetBytes(xmlStr);
         }
 
         private string Ascii2Str(byte[] buf)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            return Encoding.GetEncoding("GB2312").GetString(buf);
+            return Encoding.GetEncoding("GBK").GetString(buf);
         }
         #endregion
 
@@ -154,16 +154,16 @@ namespace Common.Buffer
 
         public void add(string buffer,int size)
         {
-            if(buffer.Length > size)
+            if(str2ASCII(buffer).Length > size)
             {
                 buffer = buffer.Substring(0, size);
             }
 
             add(str2ASCII(buffer));
-            for(int i = buffer.Length; i<size;i++)
+            for(int i = str2ASCII(buffer).Length; i<size;i++)
             {
                 add<byte>(0);
-            }            
+            }
         }
 
         public void addTime(long l)

@@ -7,8 +7,12 @@
   <ItemGroup>
     <Folder Include="Handler\" />
     <Folder Include="Packet\" />
-    <Folder Include="script\NPCScript\" />
-    <Folder Include="script\EventScript\" />
+    <Folder Include="script\NPC\" />
+    <Folder Include="script\Event\" />
+    <Folder Include="script\Portal\" />
+    <Folder Include="script\Quest\" />
+    <Folder Include="script\Item\" />
+    <Folder Include="script\Reactor\" />
   </ItemGroup>
 
   <ItemGroup>

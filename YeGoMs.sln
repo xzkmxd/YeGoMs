@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoginServer", "LoginServer\LoginServer.csproj", "{EBA50843-FA2F-42CE-B0C0-36DB1782079F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Channel", "Channel\Channel.csproj", "{CDCC5AB5-791E-4877-B926-28FA17F7CD6D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChannelServer", "Channel\ChannelServer.csproj", "{CDCC5AB5-791E-4877-B926-28FA17F7CD6D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

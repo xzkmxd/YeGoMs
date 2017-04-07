@@ -2,3 +2,4 @@ bin
 /Common/obj
 /LoginServer/obj
 /ServerApp/obj
+/Channel/obj

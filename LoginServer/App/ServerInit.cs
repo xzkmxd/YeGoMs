@@ -13,14 +13,27 @@ using Chloe.MySql;
 using Chloe;
 using Common.Sql;
 using MoonSharp.Interpreter;
+using LoginServer.Config;
+using Common.Handler;
 
 namespace LoginServer.App
 {
     /// <summary>
     /// 该服务器初始化类
     /// </summary>
-    public class ServerInit
+    public class ServerInit: ServerInterface
     {
+        AppConfig config;
+
+        /// <summary>
+        /// 获取配置
+        /// </summary>
+        /// <returns></returns>
+        public object GetAppConfig()
+        {
+            return config;
+        }
+
         public ServerInit()
         {
             //运行脚本
@@ -48,7 +61,12 @@ namespace LoginServer.App
                 Console.WriteLine("运行错误:" + e);
             }
 #endif
-
+            config = AppConfig.Load();
+            if (config == null)
+            {
+                AppConfig.Creator();
+                config = AppConfig.Load();
+            }
 
             #region 自动获取处理
 
@@ -60,36 +78,17 @@ namespace LoginServer.App
                 {
                     HandlerInterface @interface = (HandlerInterface)Assembly.GetExecutingAssembly().CreateInstance(t.FullName);
                     CommonGlobal.mHandler.Add(((PacketHead)attribute).Head, @interface);
-                    Console.WriteLine(@interface.ToString());
+                    Console.WriteLine("注册事件:{0}-{1}",System.Enum.GetName(typeof(Opcode.RecvOpcode), ((PacketHead)attribute).Head),@interface.ToString());
                 }
             }
 
 
             #endregion
 
-            Console.WriteLine("注册事件:{0}", CommonGlobal.mHandler.Count);
+            Console.WriteLine("事件注册数量:{0}", CommonGlobal.mHandler.Count);
 
             //以下是定时器例子
             Text().Wait();
-
-            //测试mysql数据库
-
-            //IQuery<User> q = MySqlFactory.GetFactory.Query<User>();
-            //User xx = q.Where(a => a.Id == 1).FirstOrDefault();
-
-            //for (int i = 0; i < 1000; i++)
-            //{
-            //    MySqlFactory.GetFactory.Insert<User>(new User
-            //    {
-            //        Name = i.ToString(),
-            //    });
-            //}
-
-
-
-
-            //while (true) ;
-
         }
 
         [MoonSharpUserData]

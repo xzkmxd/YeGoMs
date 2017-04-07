@@ -13,6 +13,8 @@ using System.Collections.Generic;
 using DotNetty.Common.Utilities;
 using ServerApp.Handler;
 using System.Threading;
+using System.Xml;
+using Common.Handler;
 
 namespace ServerApp
 {
@@ -21,10 +23,13 @@ namespace ServerApp
     {
         static bool Run = true;
         static Assembly assembly;
+        static object AssemblyObj;
         static string AppPath = System.IO.Directory.GetCurrentDirectory();
 
         static void Main(string[] args)
         {
+
+
             Console.WriteLine("Hello World!");
 
 #if 测试版本
@@ -57,37 +62,23 @@ namespace ServerApp
 #endif
 #if !正式版测试
 
+            Console.Title = "启动:" + args[0];
             switch (args[0])
             {
                 case "Common":
                 case "LoginServer":
                     {
+                        LoadConfig(args[0]).ConfigureAwait(true);
 
-                        Thread thread = new Thread(() => {
-                            RunServerAsync(8484).Wait();//.Start();
-                        });
-                        thread.Start();
-                        //开始进行Dot
-                        Thread Iothread = new Thread(() => {
-                            assembly = Assembly.Load(System.IO.File.ReadAllBytes(@"" + AppPath + "\\" + args[0] + ".dll"));
-                            assembly.CreateInstance(args[0] + ".App.ServerInit");
-                        }
-                        );
-                        Iothread.Start();
-                        //热更新.
-                        //new Thread(() =>
-                        //{
-                        //}).Start();
-                        
                         while (Run)
                         {
                             string linet = System.Console.ReadLine();
-                            switch(linet)
+                            switch (linet)
                             {
                                 case "Exit":
                                     Environment.Exit(0);
                                     break;
-                                case "Test":                                    
+                                case "Test":
                                     assembly = Assembly.Load(System.IO.File.ReadAllBytes(@"" + AppPath + "\\" + args[0] + ".dll"));
                                     assembly.CreateInstance(args[0] + ".App.ServerInit");
                                     break;
@@ -100,25 +91,24 @@ namespace ServerApp
                 case "GameServer":
                 case "DBServer":
                 case "ChannelServer":
-                    Console.Title = "启动:" + args[0];
-                    //进行该DLL的反射机制
-                    assembly = Assembly.Load(System.IO.File.ReadAllBytes(@"" + AppPath + "\\" + args[0] + ".dll"));
-                    assembly.CreateInstance(args[0] + ".App.ServerInit");
-
-
-                    while (true)
                     {
-                        //进行网络事件注册
-                        // LoginServer.App
-                        OldMapleBuffer mapleBuffer = new OldMapleBuffer();
-                        mapleBuffer.add<short>(5);
-                        mapleBuffer.add<int>(50);
-                        mapleBuffer.add<int>(50);
-                        //Common.Global.CommonGlobal.Run(mapleBuffer.read<short>(), mapleBuffer);
-                        Console.ReadLine();
+                        //进行该DLL的反射机制
+                        Thread thread = new Thread(() =>
+                        {
+                            RunServerAsync(7575).Wait();//.Start();
+                        });
+                        thread.Start();
+                        //开始进行Dot
+                        Thread Iothread = new Thread(() =>
+                        {
+                            assembly = Assembly.Load(System.IO.File.ReadAllBytes(@"" + AppPath + "\\" + args[0] + ".dll"));
+                            assembly.CreateInstance(args[0] + ".App.ServerInit");
+                        }
+                        );
+                        Iothread.Start();
 
+                        break;
                     }
-                    break;
                 default:
                     Console.WriteLine("启动错误!");
                     break;
@@ -143,6 +133,19 @@ namespace ServerApp
 
         }
 
+        static async Task LoadConfig(string args)
+        {
+
+            await Task.Run(()=>{
+                assembly = Assembly.Load(System.IO.File.ReadAllBytes(@"" + AppPath + "\\" + args + ".dll"));
+                AssemblyObj = assembly.CreateInstance(args + ".App.ServerInit");
+            });
+
+            short login = ((AppConfigInterface)((Common.Handler.ServerInterface)AssemblyObj).GetAppConfig()).GetPort();
+            System.Console.WriteLine("登陆端口:{0}", login);
+            RunServerAsync(login).Wait();//.Start();
+        }
+
 
         static async Task RunServerAsync(short Port)
         {
@@ -163,7 +166,7 @@ namespace ServerApp
                     .Group(bossGroup, workerGroup) // 设置主和工作线程组
                     .Channel<TcpServerSocketChannel>() // 设置通道模式为TcpSocket
                     .Option(ChannelOption.SoBacklog, 100) // 设置网络IO参数等，这里可以设置很多参数，当然你对网络调优和参数设置非常了解的话，你可以设置，或者就用默认参数吧
-                    //.Handler(new LoggingHandler("SRV-LSTN")) //在主线程组上设置一个打印日志的处理器
+                                                          //.Handler(new LoggingHandler("SRV-LSTN")) //在主线程组上设置一个打印日志的处理器
                     .ChildHandler(new ActionChannelInitializer<ISocketChannel>(channel =>
                     { //工作线程连接器 是设置了一个管道，服务端主线程所有接收到的信息都会通过这个管道一层层往下传输
                       //同时所有出栈的消息 也要这个管道的所有处理器进行一步步处理
