@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "ServerApp": {
+      "commandName": "Project",
+      "commandLineArgs": "LoginServer",
+      "workingDirectory": "J:\\C#MxdServer\\CMSDotnetty\\bin\\netcoreapp2.0"
+    }
+  }
+}
