@@ -46,9 +46,9 @@ namespace Common.Cryptography
                 transformDirection == CipherType.Encrypt ? new Action<byte[]>(EncryptTransform) : new Action<byte[]>(DecryptTransform);
         }
 
-        public unsafe void Transform(byte[] data)
+        public unsafe void Transform()
         {
-            m_transformer(data);
+            //m_transformer(data);
 
             byte[] newIV = new byte[IVLength] { 0xF2, 0x53, 0x50, 0xC6 };
 
@@ -158,6 +158,7 @@ namespace Common.Cryptography
             packet[2] = (byte)(b ^ 0x100);
             packet[3] = (byte)((b - packet[2]) / 0x100);
         }
+
         public void GetHeaderToServer(int size, byte[] packet)
         {
             var a = (m_IV[3] * 0x100 + m_IV[2]) ^ m_majorVersion;
@@ -172,6 +173,13 @@ namespace Common.Cryptography
         public static int GetPacketLength(byte[] packetHeader)
         {
             return (packetHeader[0] + (packetHeader[1] << 8)) ^ (packetHeader[2] + (packetHeader[3] << 8));
+        }
+
+        public static int getPacketLength(int packetHeader)
+        {
+            int packetLength = packetHeader >> 16 ^ packetHeader & 0xFFFF;
+            packetLength = ((packetLength << 8) & 0xFF00) | ((packetLength >> 8) & 0xFF);
+            return packetLength;
         }
 
         private static byte RollLeft(byte value, int shift)

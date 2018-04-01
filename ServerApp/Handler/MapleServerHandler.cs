@@ -30,13 +30,12 @@ namespace ServerApp.Handler
                 {
                     return;
                 }
+                System.Console.WriteLine("封包: {0}", buffer.ToString());
 
                 MapleClient client = context.GetAttribute<MapleClient>(MapleClient.attributeKey).Get();
                 if (client != null)
                 {
-                    short packetId = buffer.read<short>();
-
-
+                    short packetId = buffer.read<byte>();
                     CommonGlobal.Run(packetId, buffer, client);
                 }
             }
@@ -53,27 +52,21 @@ namespace ServerApp.Handler
         /// <param name="sendIv"></param>
         /// <param name="recvIv"></param>
         /// <returns></returns>
-        public static MapleBuffer GetHello(short mapleVersion, byte[] sendIv, byte[] recvIv)
+        public static MaplePakcet GetHello(short mapleVersion, byte[] sendIv, byte[] recvIv)
         {
-            //using (MapleBuffer mapleBuffer = new MapleBuffer())
-            //{
-            MapleBuffer mapleBuffer = new MapleBuffer();
-            mapleBuffer.add((short)0x0E);
-            mapleBuffer.add<short>(mapleVersion);
-            mapleBuffer.add(recvIv);
-            mapleBuffer.add(sendIv);
-            mapleBuffer.add(4);
+            using (MapleBuffer mapleBuffer = new MapleBuffer())
+            {
+                System.Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+                mapleBuffer.add((short)0x0E);
+                mapleBuffer.add<short>(mapleVersion);
+                mapleBuffer.add<short>(1);
+                mapleBuffer.add<byte>(0x31);
+                mapleBuffer.add(recvIv);
+                mapleBuffer.add(sendIv);
+                mapleBuffer.add<byte>(4);
 
-            return mapleBuffer;
-            //}
-        }
-
-        public override void ChannelRegistered(IChannelHandlerContext context)
-        {
-            base.ChannelRegistered(context);
-            System.Console.WriteLine("注册:" + context.Channel.RemoteAddress.ToString());
-            byte[] ivRecv = { 70, 114, 122, 82 };
-            context.Channel.WriteAndFlushAsync(ivRecv);
+                return new MaplePakcet(mapleBuffer.ToArray());
+            }
         }
 
         public override void ChannelActive(IChannelHandlerContext context)
@@ -86,7 +79,7 @@ namespace ServerApp.Handler
             byte[] ivRecv = { 70, 114, 122, 82 };
             byte[] ivSend = { 82, 48, 120, 115 };
             MapleClient client = new MapleClient(27, ivRecv, ivSend, context.Channel);
-            context.Channel.WriteAndFlushAsync(GetHello(27, ivRecv, ivSend));
+            context.Channel.WriteAndFlushAsync(GetHello(27, ivRecv, ivSend));            
 
 
             //设置客户端
@@ -95,7 +88,7 @@ namespace ServerApp.Handler
 
         public override void ExceptionCaught(IChannelHandlerContext context, Exception exception)
         {
-            System.Console.WriteLine("连接异常:"+exception);
+            System.Console.WriteLine("连接异常:" + exception);
         }
 
         /// <summary>

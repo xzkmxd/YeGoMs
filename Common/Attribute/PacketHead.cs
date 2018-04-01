@@ -19,5 +19,13 @@ namespace Common.Attribute
             Text = text;
         }
 
+        public PacketHead(object head,Type type)
+        {
+
+            System.Byte Vaul = (System.Byte)Enum.Parse(type, head.ToString());
+            Head = byte.Parse(Vaul.ToString());
+            Text = head.ToString();
+        }
+
     }
 }

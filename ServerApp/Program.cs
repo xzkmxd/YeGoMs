@@ -19,6 +19,7 @@ namespace ServerApp
 
     class Program
     {
+        static bool Run = true;
         static Assembly assembly;
         static string AppPath = System.IO.Directory.GetCurrentDirectory();
 
@@ -67,11 +68,32 @@ namespace ServerApp
                         });
                         thread.Start();
                         //开始进行Dot
-                        assembly = Assembly.Load(System.IO.File.ReadAllBytes(@"" + AppPath + "\\" + args[0] + ".dll"));
-                        assembly.CreateInstance(args[0] + ".App.ServerInit");
-                        //初始化网络
+                        Thread Iothread = new Thread(() => {
+                            assembly = Assembly.Load(System.IO.File.ReadAllBytes(@"" + AppPath + "\\" + args[0] + ".dll"));
+                            assembly.CreateInstance(args[0] + ".App.ServerInit");
+                        }
+                        );
+                        Iothread.Start();
+                        //热更新.
+                        //new Thread(() =>
+                        //{
+                        //}).Start();
                         
-                        while (true) ;
+                        while (Run)
+                        {
+                            string linet = System.Console.ReadLine();
+                            switch(linet)
+                            {
+                                case "Exit":
+                                    Environment.Exit(0);
+                                    break;
+                                case "Test":                                    
+                                    assembly = Assembly.Load(System.IO.File.ReadAllBytes(@"" + AppPath + "\\" + args[0] + ".dll"));
+                                    assembly.CreateInstance(args[0] + ".App.ServerInit");
+                                    break;
+                            }
+
+                        }
 
                         break;
                     }

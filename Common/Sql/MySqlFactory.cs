@@ -26,7 +26,7 @@ namespace Common.Sql
         public string ServerIp = "127.0.0.1";
         public string UserName = "root";
         public string UserPwd = "root";
-        public string DataName = "root";
+        public string DataName = "mydatabase";
         public short port = 3306;
     }
 
@@ -34,15 +34,15 @@ namespace Common.Sql
     {
 
         private static MySqlFactory Factory;
-        private MySqlContext context;
 
+        private MySqlContext context;
         public static MySqlContext GetFactory
         {
             get
             {
                 if(Factory == null)
                 {
-                    Factory = new MySqlFactory(new ConnectionConfigure());
+                    new MySqlFactory(new ConnectionConfigure());
                 }
                 return Factory.context;
             }
@@ -52,12 +52,13 @@ namespace Common.Sql
         public MySqlFactory(ConnectionConfigure connectionConfigure)
         {
             connection = connectionConfigure;
-            context = new MySqlContext(Factory);
+            Factory = this;
+            context = new MySqlContext(this);
         }
 
         public IDbConnection CreateConnection()
         {
-            string constructorString = "server=" + connection.ServerIp + ";user id=" + connection.UserName + ";password=" + connection.UserPwd + ";persistsecurityinfo=True;port=" + connection.ServerIp + ";database=" + connection.DataName + ";SslMode=none";
+            string constructorString = "server=" + connection.ServerIp + ";user id=" + connection.UserName + ";password=" + connection.UserPwd + ";persistsecurityinfo=True;port=" + connection.port + ";database=" + connection.DataName + ";SslMode=none";
             IDbConnection conn = new MySqlConnection(constructorString);
             /*如果有必要需要包装一下驱动的 MySqlConnection*/
             conn = new Chloe.MySql.ChloeMySqlConnection(conn);

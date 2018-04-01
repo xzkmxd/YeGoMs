@@ -10,7 +10,6 @@ using Quartz;
 using Quartz.Impl;
 using System.Threading.Tasks;
 using Chloe.MySql;
-using LoginServer.mysql;
 using Chloe;
 using Common.Sql;
 
@@ -47,7 +46,7 @@ namespace LoginServer.App
             Text().Wait();
 
             //测试mysql数据库
-
+            
             //IQuery<User> q = MySqlFactory.GetFactory.Query<User>();
             //User xx = q.Where(a => a.Id == 1).FirstOrDefault();
 

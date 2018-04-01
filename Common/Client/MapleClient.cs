@@ -1,4 +1,5 @@
-﻿using Common.Cryptography;
+﻿using Common.Buffer;
+using Common.Cryptography;
 using DotNetty.Common.Utilities;
 using DotNetty.Transport.Channels;
 using System;
@@ -16,6 +17,7 @@ namespace Common.Client
         public MapleCipher m_RecvIv;
         //客户端套接字
         public IChannel m_Session;
+        public int DecoderState = -1;
 
         public MapleClient(short Version, byte[] Riv,byte[] Siv, IChannel channel)
         {
@@ -35,7 +37,19 @@ namespace Common.Client
             m_RecvIv = new MapleCipher(Version, Riv, aes, CipherType.Decrypt);
             m_SendIv = new MapleCipher(Version, Riv, aes, CipherType.Encrypt);
             m_Session = channel;
+            DecoderState = -1;
+        }
 
+        /// <summary>
+        /// 数据发送
+        /// </summary>
+        /// <param name="datat"></param>
+        public void SendDatat(MaplePakcet datat)
+        {
+            using (datat)
+            {
+                m_Session.WriteAndFlushAsync(datat);
+            }
         }
 
     }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Tools;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -9,7 +10,7 @@ namespace Common.Buffer
     public class BufferException : System.Exception
     {
         public BufferException(string Msg) : base(Msg)
-        {            
+        {
 
         }
     }
@@ -59,6 +60,7 @@ namespace Common.Buffer
             m_disposed = false;
         }
 
+
         public MapleBuffer(byte[] buffer)
         {
             m_stream = new MemoryStream(buffer);
@@ -83,12 +85,14 @@ namespace Common.Buffer
         #region 字符串转换
         private byte[] str2ASCII(String xmlStr)
         {
-            return Encoding.GetEncoding("GBK").GetBytes(xmlStr);
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            return Encoding.GetEncoding("GB2312").GetBytes(xmlStr);
         }
 
         private string Ascii2Str(byte[] buf)
         {
-            return Encoding.GetEncoding("GBK").GetString(buf);
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            return Encoding.GetEncoding("GB2312").GetString(buf);
         }
         #endregion
 
@@ -96,7 +100,7 @@ namespace Common.Buffer
         public void add<T>(T bufferx)
         {
             Type type = bufferx.GetType();
-            
+
             switch (type.ToString())
             {
                 case "System.Int32"://int
@@ -128,18 +132,21 @@ namespace Common.Buffer
                     WriteByte((byte)(byte.Parse(bufferx.ToString()) & 0xFF));
                     WriteByte((byte)((byte.Parse(bufferx.ToString()) >> 8) & 0xFF));
                     break;
+                case "System.Boolean":
+                    WriteByte((Boolean.Parse(bufferx.ToString())) ?  (byte)1 : (byte)0);
+                    break;
                 case "System.Byte":
                     WriteByte(byte.Parse(bufferx.ToString()));
                     break;
                 default:
-                    throw new BufferException("Error No Type:" + type.ToString());                   
+                    throw new BufferException("Error No Type:" + type.ToString());
             }
         }
         #endregion
 
         public void add(byte[] buffer)
         {
-            foreach(byte s in buffer)
+            foreach (byte s in buffer)
             {
                 WriteByte(s);
             }
@@ -235,6 +242,18 @@ namespace Common.Buffer
             }
         }
 
+
+        ~MapleBuffer()
+        {
+            m_disposed = true;
+
+            if (m_stream != null)
+            {
+                m_stream.Dispose();
+            }
+
+            m_stream = null;
+        }
         void IDisposable.Dispose()
         {
 
@@ -248,6 +267,17 @@ namespace Common.Buffer
             m_stream = null;
 
         }
+
+        public override string ToString()
+        {
+            return HexTool.toString(ToArray());
+        }
+
+        public MaplePakcet GetPakcet()
+        {
+            return new MaplePakcet(ToArray());
+        }
+
         #endregion
     }
 }

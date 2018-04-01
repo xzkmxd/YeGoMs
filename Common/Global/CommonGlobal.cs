@@ -25,6 +25,10 @@ namespace Common.Global
                 }
                 mHandler[id].Handle(mapleBuffer, client);
             }
+            else
+            {
+                System.Console.WriteLine("包头:{0}[{1}]", id, mapleBuffer.ToString());
+            }
         }
 
     }
