@@ -8,6 +8,7 @@
     <OutputPath>..\\bin\</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>false</Optimize>
+    <WarningLevel>0</WarningLevel>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,8 +21,10 @@
     <PackageReference Include="DotNetty.Buffers" Version="0.4.7" />
     <PackageReference Include="DotNetty.Common" Version="0.4.7" />
     <PackageReference Include="DotNetty.Handlers" Version="0.4.7" />
+    <PackageReference Include="lz4net" Version="1.0.15.93" />
     <PackageReference Include="MoonSharp" Version="2.0.0" />
     <PackageReference Include="MySql.Data" Version="8.0.10-rc" />
+    <PackageReference Include="python" Version="3.7.0-b3" />
     <PackageReference Include="Quartz" Version="3.0.4" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0-preview1-26216-02" />
     <PackageReference Include="Yinyue200.Corefx.CodePages" Version="1.0.0" />

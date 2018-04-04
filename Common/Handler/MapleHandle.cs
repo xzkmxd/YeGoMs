@@ -8,7 +8,7 @@ namespace Common.Handle
 {
     public abstract class HandlerInterface
     {
-        public abstract void Handle(MapleBuffer mapleBuffer,MapleClient client);
+        public abstract void Handle(MapleBuffer mapleBuffer,CMapleClient client);
     }
 
 

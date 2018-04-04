@@ -32,7 +32,7 @@ namespace ServerApp.Handler
                 }
                 System.Console.WriteLine("封包: {0}", buffer.ToString());
 
-                MapleClient client = context.GetAttribute<MapleClient>(MapleClient.attributeKey).Get();
+                CMapleClient client = context.GetAttribute<CMapleClient>(CMapleClient.attributeKey).Get();
                 if (client != null)
                 {
                     short packetId = buffer.read<byte>();
@@ -78,12 +78,12 @@ namespace ServerApp.Handler
             //创建一个客户端
             byte[] ivRecv = { 70, 114, 122, 82 };
             byte[] ivSend = { 82, 48, 120, 115 };
-            MapleClient client = new MapleClient(27, ivRecv, ivSend, context.Channel);
+            CMapleClient client = new CMapleClient(27, ivRecv, ivSend, context.Channel);
             context.Channel.WriteAndFlushAsync(GetHello(27, ivRecv, ivSend));            
 
 
             //设置客户端
-            context.GetAttribute<MapleClient>(MapleClient.attributeKey).Set(client);
+            context.GetAttribute<CMapleClient>(CMapleClient.attributeKey).Set(client);
         }
 
         public override void ExceptionCaught(IChannelHandlerContext context, Exception exception)

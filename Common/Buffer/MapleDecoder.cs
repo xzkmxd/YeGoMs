@@ -16,7 +16,7 @@ namespace Common.Buffer
     {
         protected override void Decode(IChannelHandlerContext context, IByteBuffer input, List<object> output)
         {
-            MapleClient client = context.GetAttribute<MapleClient>(MapleClient.attributeKey).Get();
+            CMapleClient client = context.GetAttribute<CMapleClient>(CMapleClient.attributeKey).Get();
             if(client.DecoderState == -1)
             {
                 //检测长度

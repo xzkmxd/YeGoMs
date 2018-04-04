@@ -1,4 +1,5 @@
 ﻿using Common.Buffer;
+using Common.Client.SQL;
 using Common.Cryptography;
 using DotNetty.Common.Utilities;
 using DotNetty.Transport.Channels;
@@ -9,17 +10,30 @@ using System.Text;
 namespace Common.Client
 {
 
-
-    public class MapleClient
+    /// <summary>
+    /// 帐号登陆状态
+    /// </summary>
+    public enum LOGINSTATE
     {
-        public static AttributeKey<MapleClient> attributeKey = AttributeKey<MapleClient>.NewInstance("Client");
+        OFFLIEN,//离线
+        LANDFALL,//登录中
+        INGAME,//游戏中
+    }
+
+
+    public class CMapleClient
+    {
+        public static AttributeKey<CMapleClient> attributeKey = AttributeKey<CMapleClient>.NewInstance("Client");
         public MapleCipher m_SendIv;
         public MapleCipher m_RecvIv;
         //客户端套接字
         public IChannel m_Session;
         public int DecoderState = -1;
+        public CUser UserInfo { get; set; }
+        public CMapleCharacter CharacterInfo { get; set; }
 
-        public MapleClient(short Version, byte[] Riv,byte[] Siv, IChannel channel)
+
+        public CMapleClient(short Version, byte[] Riv,byte[] Siv, IChannel channel)
         {
             var userkey = new byte[] //europe maplestory key
             {

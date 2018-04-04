@@ -15,7 +15,7 @@ namespace Common.Buffer
         {
             using (message)
             {
-                MapleClient client = context.GetAttribute<MapleClient>(MapleClient.attributeKey).Get();
+                CMapleClient client = context.GetAttribute<CMapleClient>(CMapleClient.attributeKey).Get();
                 if (client == null)
                 {
                     output.WriteBytes(message.ToArray());

@@ -12,7 +12,7 @@ namespace Common.Global
     {
         public static Dictionary<short, HandlerInterface> mHandler = new Dictionary<short, HandlerInterface>();
 
-        public static void Run(short id,MapleBuffer mapleBuffer,MapleClient client)
+        public static void Run(short id,MapleBuffer mapleBuffer,CMapleClient client)
         {
             if (mHandler.ContainsKey(id))
             {

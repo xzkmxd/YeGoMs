@@ -104,33 +104,33 @@ namespace Common.Buffer
             switch (type.ToString())
             {
                 case "System.Int32"://int
-                    WriteByte((byte)(byte.Parse(bufferx.ToString()) & 0xFF));
-                    WriteByte((byte)((byte.Parse(bufferx.ToString()) >> 8) & 0xFF));
-                    WriteByte((byte)((byte.Parse(bufferx.ToString()) >> 16) & 0xFF));
-                    WriteByte((byte)((byte.Parse(bufferx.ToString()) >> 24) & 0xFF));
+                    WriteByte((byte)(int.Parse(bufferx.ToString()) & 0xFF));
+                    WriteByte((byte)((int.Parse(bufferx.ToString()) >> 8) & 0xFF));
+                    WriteByte((byte)((int.Parse(bufferx.ToString()) >> 16) & 0xFF));
+                    WriteByte((byte)((int.Parse(bufferx.ToString()) >> 24) & 0xFF));
                     break;
                 case "System.Int64"://long
-                    WriteByte((byte)(byte.Parse(bufferx.ToString()) & 0xFF));
-                    WriteByte((byte)((byte.Parse(bufferx.ToString()) >> 8) & 0xFF));
-                    WriteByte((byte)((byte.Parse(bufferx.ToString()) >> 16) & 0xFF));
-                    WriteByte((byte)((byte.Parse(bufferx.ToString()) >> 24) & 0xFF));
-                    WriteByte((byte)((byte.Parse(bufferx.ToString()) >> 32) & 0xFF));
-                    WriteByte((byte)((byte.Parse(bufferx.ToString()) >> 40) & 0xFF));
-                    WriteByte((byte)((byte.Parse(bufferx.ToString()) >> 48) & 0xFF));
-                    WriteByte((byte)((byte.Parse(bufferx.ToString()) >> 56) & 0xFF));
+                    WriteByte((byte)(int.Parse(bufferx.ToString()) & 0xFF));
+                    WriteByte((byte)((int.Parse(bufferx.ToString()) >> 8) & 0xFF));
+                    WriteByte((byte)((int.Parse(bufferx.ToString()) >> 16) & 0xFF));
+                    WriteByte((byte)((int.Parse(bufferx.ToString()) >> 24) & 0xFF));
+                    WriteByte((byte)((int.Parse(bufferx.ToString()) >> 32) & 0xFF));
+                    WriteByte((byte)((int.Parse(bufferx.ToString()) >> 40) & 0xFF));
+                    WriteByte((byte)((int.Parse(bufferx.ToString()) >> 48) & 0xFF));
+                    WriteByte((byte)((int.Parse(bufferx.ToString()) >> 56) & 0xFF));
                     break;
                 case "System.String"://string
                     byte[] retbytes = str2ASCII(bufferx.ToString());
-                    WriteByte((byte)(byte.Parse(retbytes.Length.ToString()) & 0xFF));
-                    WriteByte((byte)((byte.Parse(retbytes.Length.ToString()) >> 8) & 0xFF));
+                    WriteByte((byte)(int.Parse(retbytes.Length.ToString()) & 0xFF));
+                    WriteByte((byte)((int.Parse(retbytes.Length.ToString()) >> 8) & 0xFF));
                     foreach (byte b in retbytes)
                     {
                         WriteByte(b);
                     }
                     break;
                 case "System.Int16"://short
-                    WriteByte((byte)(byte.Parse(bufferx.ToString()) & 0xFF));
-                    WriteByte((byte)((byte.Parse(bufferx.ToString()) >> 8) & 0xFF));
+                    WriteByte((byte)(int.Parse(bufferx.ToString()) & 0xFF));
+                    WriteByte((byte)((int.Parse(bufferx.ToString()) >> 8) & 0xFF));
                     break;
                 case "System.Boolean":
                     WriteByte((Boolean.Parse(bufferx.ToString())) ?  (byte)1 : (byte)0);
@@ -150,6 +150,32 @@ namespace Common.Buffer
             {
                 WriteByte(s);
             }
+        }
+
+        public void add(string buffer,int size)
+        {
+            if(buffer.Length > size)
+            {
+                buffer = buffer.Substring(0, size);
+            }
+
+            add(str2ASCII(buffer));
+            for(int i = buffer.Length; i<size;i++)
+            {
+                add<byte>(0);
+            }            
+        }
+
+        public void addTime(long l)
+        {
+            WriteByte((byte)(int)(l >> 32 & 0xFF));
+            WriteByte((byte)(int)(l >> 40 & 0xFF));
+            WriteByte((byte)(int)(l >> 48 & 0xFF));
+            WriteByte((byte)(int)(l >> 56 & 0xFF));
+            WriteByte((byte)(int)(l & 0xFF));
+            WriteByte((byte)(int)(l >> 8 & 0xFF));
+            WriteByte((byte)(int)(l >> 16 & 0xFF));
+            WriteByte((byte)(int)(l >> 24 & 0xFF));
         }
 
         public int Available

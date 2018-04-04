@@ -17,5 +17,17 @@ namespace Common.Client.SQL
 
         public byte Gender { get; set; }
 
+        public LOGINSTATE? Loggedin { get; set; }
+
+        public int? Gm { get; set; }
+        public System.DateTime? LastLogin { get; set; }
+
+        public string Macs { get; set; }
+        public int? ACash { get; set; }
+        public int? Mpoints { get; set; }
+
+
+
+
     }
 }

@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Chloe.MySql;
 using Chloe;
 using Common.Sql;
+using MoonSharp.Interpreter;
 
 namespace LoginServer.App
 {
@@ -22,6 +23,32 @@ namespace LoginServer.App
     {
         public ServerInit()
         {
+            //运行脚本
+            //Script.RunFile("Script\\Text.lua");
+            //在C#中定义Lua全局脚本
+#if Lua
+            UserData.RegisterType<TestClass>();
+            UserData.RegisterType<GGG>();
+           
+            Script script = new Script();
+            script.Globals["ShowGame"] = (Func<TestClass>)ShowGame;
+            //加载脚本.
+            try
+            {
+                DynValue obj = UserData.Create(new TestClass());
+                script.Globals.Set("startxx", obj);
+                //script.Globals["ShowGame"] = new TestClass();
+                //script.Globals.Set("obj", obj);
+                DynValue value = script.DoFile("Script\\Text.lua");
+                //运行
+                script.Call(script.Globals["start"], 10);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("运行错误:" + e);
+            }
+#endif
+
 
             #region 自动获取处理
 
@@ -35,9 +62,9 @@ namespace LoginServer.App
                     CommonGlobal.mHandler.Add(((PacketHead)attribute).Head, @interface);
                     Console.WriteLine(@interface.ToString());
                 }
-
             }
-            
+
+
             #endregion
 
             Console.WriteLine("注册事件:{0}", CommonGlobal.mHandler.Count);
@@ -46,7 +73,7 @@ namespace LoginServer.App
             Text().Wait();
 
             //测试mysql数据库
-            
+
             //IQuery<User> q = MySqlFactory.GetFactory.Query<User>();
             //User xx = q.Where(a => a.Id == 1).FirstOrDefault();
 
@@ -63,6 +90,46 @@ namespace LoginServer.App
 
             //while (true) ;
 
+        }
+
+        [MoonSharpUserData]
+        public class TestClass
+        {
+            public string Name()
+            {
+                System.Console.WriteLine("Name");
+                return "成功了吗?";
+            }
+
+            public GGG GetG(string Name)
+            {
+                GGG gGG = new GGG();
+                gGG.Name = Name;
+                return gGG;
+            }
+        }
+
+        public class GGG
+        {
+            public string Name
+            {
+                get;
+                set;
+            }
+
+            public void Debug()
+            {
+                Console.WriteLine(Name);
+            }
+
+
+        }
+
+
+        private TestClass ShowGame()
+        {
+            TestClass testClass = new TestClass();
+            return testClass;
         }
 
 
