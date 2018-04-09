@@ -63,9 +63,13 @@ namespace ChannelServer.Config
         /// </summary>
         public string WorldAddress { get; set; }
 
+        public short Port { get; set; }
+
+        public int Index { get; set; }
+
         public short GetPort()
         {
-            return 0;
+            return Port;
         }
 
         public string GetWorldAddress()
@@ -132,6 +136,11 @@ namespace ChannelServer.Config
 
             XmlWriter writer = XmlWriter.Create(path, writerSetting);
             xml.Save(writer);
+        }
+
+        public short GetId()
+        {
+            return (short)Index;
         }
     }
 }

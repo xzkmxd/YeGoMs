@@ -3,3 +3,5 @@ bin
 /LoginServer/obj
 /ServerApp/obj
 /Channel/obj
+/WorldServer/obj
+/WorldServer/bin

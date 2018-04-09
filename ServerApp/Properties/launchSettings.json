@@ -2,7 +2,7 @@
   "profiles": {
     "ServerApp": {
       "commandName": "Project",
-      "commandLineArgs": "LoginServer",
+      "commandLineArgs": "WorldServer",
       "workingDirectory": "..\\\\bin\\netcoreapp2.0\\"
     }
   }

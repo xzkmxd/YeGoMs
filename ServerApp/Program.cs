@@ -15,12 +15,25 @@ using ServerApp.Handler;
 using System.Threading;
 using System.Xml;
 using Common.Handler;
+using System.Runtime.InteropServices;
+
 
 namespace ServerApp
 {
+    public delegate bool ConsoleCtrlDelegate(int dwCtrlType);
+
 
     class Program
     {
+
+        [DllImport("kernel32.dll")]
+        private static extern bool SetConsoleCtrlHandler(ConsoleCtrlDelegate handlerRoutine, bool add);
+        private const int CtrlCEvent = 0;//CTRL_C_EVENT = 0;//一个Ctrl+C的信号被接收，该信号或来自键盘，或来自GenerateConsoleCtrlEvent    函数   
+        private const int CtrlBreakEvent = 1;//CTRL_BREAK_EVENT = 1;//一个Ctrl+Break信号被接收，该信号或来自键盘，或来自GenerateConsoleCtrlEvent    函数  
+        private const int CtrlCloseEvent = 2;//CTRL_CLOSE_EVENT = 2;//当用户系统关闭Console时，系统会发送此信号到此   
+        private const int CtrlLogoffEvent = 5;//CTRL_LOGOFF_EVENT = 5;//当用户退出系统时系统会发送这个信号给所有的Console程序。该信号不能显示是哪个用户退出。   
+        private const int CtrlShutdownEvent = 6;//CTRL_SHUTDOWN_EVENT = 6;//当系统将要关闭时会发送此信号到所有Console程序   
+
         static bool Run = true;
         static Assembly assembly;
         static object AssemblyObj;
@@ -28,10 +41,23 @@ namespace ServerApp
 
         static void Main(string[] args)
         {
+            Console.Clear();
 
-
-            Console.WriteLine("Hello World!");
-
+            #region 设置控制台事件
+            SetConsoleCtrlHandler(new ConsoleCtrlDelegate((a) =>
+            {
+                switch (a)
+                {
+                    case CtrlCloseEvent:
+                        {
+                            Console.WriteLine("正在保存数据中....");
+                            break;
+                        }
+                }
+                return true;
+            }
+            ), true);
+            #endregion
 #if 测试版本
             #region 测试反射例子
             string path3 = System.IO.Directory.GetCurrentDirectory();
@@ -63,6 +89,7 @@ namespace ServerApp
 #if !正式版测试
 
             Console.Title = "启动:" + args[0];
+            #region 服务端命令
             switch (args[0])
             {
                 case "Common":
@@ -88,66 +115,58 @@ namespace ServerApp
 
                         break;
                     }
+                case "ChannelServer":
+                    LoadConfig(args[0], true).Wait();
+                    break;
+                case "WorldServer":
+                    LoadConfig(args[0], true).Wait();
+                    break;
                 case "GameServer":
                 case "DBServer":
-                case "ChannelServer":
                     {
-                        //进行该DLL的反射机制
-                        Thread thread = new Thread(() =>
-                        {
-                            RunServerAsync(7575).Wait();//.Start();
-                        });
-                        thread.Start();
-                        //开始进行Dot
-                        Thread Iothread = new Thread(() =>
-                        {
-                            assembly = Assembly.Load(System.IO.File.ReadAllBytes(@"" + AppPath + "\\" + args[0] + ".dll"));
-                            assembly.CreateInstance(args[0] + ".App.ServerInit");
-                        }
-                        );
-                        Iothread.Start();
-
+                        LoadConfig(args[0], true).ConfigureAwait(true);
                         break;
                     }
                 default:
                     Console.WriteLine("启动错误!");
                     break;
             }
+            #endregion
 #endif
-            //System.Attribute[] xx = AssemblyCultureAttribute.GetCustomAttributes(Assembly.GetCallingAssembly());
-
-            //assembly = Assembly.GetCallingAssembly();
-            //assembly.GetCustomAttributes()
-
-
-
-
-
-            //参数 args[1] 服务端类型,
-            /*
-            RedisDecoder redisDecoder = new RedisDecoder();
-            RedisEncoder redisEncoder = new RedisEncoder();
-            */
-
-
 
         }
 
-        static async Task LoadConfig(string args)
+        #region 加载配置且开启服务
+        static async Task LoadConfig(string args, bool isChannel = false)
         {
 
-            await Task.Run(()=>{
+            await Task.Run(() =>
+            {
                 assembly = Assembly.Load(System.IO.File.ReadAllBytes(@"" + AppPath + "\\" + args + ".dll"));
                 AssemblyObj = assembly.CreateInstance(args + ".App.ServerInit");
+
             });
 
-            short login = ((AppConfigInterface)((Common.Handler.ServerInterface)AssemblyObj).GetAppConfig()).GetPort();
-            System.Console.WriteLine("登陆端口:{0}", login);
-            RunServerAsync(login).Wait();//.Start();
+            if (isChannel)
+            {
+                //获取World的端口
+                short login = ((AppConfigInterface)((Common.Handler.ServerInterface)AssemblyObj).GetAppConfig()).GetPort();
+                System.Console.WriteLine("频道端口:{0}", login);
+                RunServerAsync(login, args).Wait();//.Start();
+                while (true) ;
+            }
+            else
+            {
+                short login = ((AppConfigInterface)((Common.Handler.ServerInterface)AssemblyObj).GetAppConfig()).GetPort();
+                System.Console.WriteLine("登陆端口:{0}", login);
+                RunServerAsync(login, args).Wait();//.Start();
+            }
         }
+        #endregion
 
 
-        static async Task RunServerAsync(short Port)
+        #region 运行Dotnetty
+        static async Task RunServerAsync(short Port, string ServerName)
         {
             //ExampleHelper.SetConsoleLogger();
             // 主工作线程组，设置为1个线程
@@ -176,15 +195,13 @@ namespace ServerApp
                         //入栈消息通过该Handler,解析消息的包长信息，并将正确的消息体发送给下一个处理Handler，该类比较常用，后面单独说明
                         pipeline.AddLast("framing-dec", new MapleDecoder());
                         //业务handler ，这里是实际处理Echo业务的Handler
-                        pipeline.AddLast("Longon", new MapleServerHandler());
-
+                        pipeline.AddLast(ServerName, new MapleServerHandler());
                     }));
 
                 // bootstrap绑定到指定端口的行为 就是服务端启动服务，同样的Serverbootstrap可以bind到多个端口
                 IChannel boundChannel = await bootstrap.BindAsync(Port);
                 while (true) ;
 
-                //Console.ReadLine();
                 //关闭服务
                 //await boundChannel.CloseAsync();
             }
@@ -197,6 +214,7 @@ namespace ServerApp
             }
 
         }
+        #endregion
 
 
 

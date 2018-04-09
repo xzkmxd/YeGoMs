@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <StartupObject />
     <ApplicationIcon />
     <OutputType>Library</OutputType>
+    <StartupObject />
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -12,18 +12,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Handler\" />
-    <Folder Include="Packet\" />
-    <Folder Include="script\NPC\" />
-    <Folder Include="script\Event\" />
-    <Folder Include="script\Portal\" />
-    <Folder Include="script\Quest\" />
-    <Folder Include="script\Item\" />
-    <Folder Include="script\Reactor\" />
+    <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Common\Common.csproj" />
+    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>

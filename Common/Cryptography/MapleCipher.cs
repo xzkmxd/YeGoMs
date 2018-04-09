@@ -46,28 +46,56 @@ namespace Common.Cryptography
                 transformDirection == CipherType.Encrypt ? new Action<byte[]>(EncryptTransform) : new Action<byte[]>(DecryptTransform);
         }
 
-        public unsafe void Transform()
+        public void Transform()
         {
-            //m_transformer(data);
+            byte[] newIV = new byte[] { 0xF2, 0x53, 0x50, 0xC6 };
 
-            byte[] newIV = new byte[IVLength] { 0xF2, 0x53, 0x50, 0xC6 };
-
-            for (int i = 0; i < IVLength; i++)
+            for (var i = 0; i < 4; i++)
             {
                 byte input = m_IV[i];
                 byte tableInput = sShiftKey[input];
-
                 newIV[0] += (byte)(sShiftKey[newIV[1]] - input);
                 newIV[1] -= (byte)(newIV[2] ^ tableInput);
                 newIV[2] ^= (byte)(sShiftKey[newIV[3]] + input);
                 newIV[3] -= (byte)(newIV[0] - tableInput);
 
-                fixed (byte* ptr = newIV)
-                    *(uint*)ptr = (*(uint*)ptr << 3) | (*(uint*)ptr >> 32 - 3); //RC6 ROL 3
+                uint val = BitConverter.ToUInt32(newIV, 0);
+                uint val2 = val >> 0x1D;
+                val <<= 0x03;
+                val2 |= val;
+                newIV[0] = (byte)(val2 & 0xFF);
+                newIV[1] = (byte)((val2 >> 8) & 0xFF);
+                newIV[2] = (byte)((val2 >> 16) & 0xFF);
+                newIV[3] = (byte)((val2 >> 24) & 0xFF);
             }
 
-            System.Buffer.BlockCopy(newIV, 0, m_IV, 0, IVLength);
+            System.Buffer.BlockCopy(newIV, 0, m_IV, 0, 4);
+
+            //m_transformer(data);
         }
+
+        //public unsafe void Transform()
+        //{
+        //    //m_transformer(data);
+
+        //    byte[] newIV = new byte[IVLength] { 0xF2, 0x53, 0x50, 0xC6 };
+
+        //    for (int i = 0; i < IVLength; i++)
+        //    {
+        //        byte input = m_IV[i];
+        //        byte tableInput = sShiftKey[input];
+
+        //        newIV[0] += (byte)(sShiftKey[newIV[1]] - input);
+        //        newIV[1] -= (byte)(newIV[2] ^ tableInput);
+        //        newIV[2] ^= (byte)(sShiftKey[newIV[3]] + input);
+        //        newIV[3] -= (byte)(newIV[0] - tableInput);
+
+        //        fixed (byte* ptr = newIV)
+        //            *(uint*)ptr = (*(uint*)ptr << 3) | (*(uint*)ptr >> 32 - 3); //RC6 ROL 3
+        //    }
+
+        //    System.Buffer.BlockCopy(newIV, 0, m_IV, 0, IVLength);
+        //}
 
         private void EncryptTransform(byte[] data)
         {

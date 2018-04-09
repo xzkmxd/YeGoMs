@@ -111,5 +111,10 @@ namespace LoginServer.Config
         {
             return WorldAddress;
         }
+
+        public short GetId()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
