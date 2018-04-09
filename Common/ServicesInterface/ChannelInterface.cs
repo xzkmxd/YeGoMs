@@ -13,12 +13,12 @@ namespace Common.ServicesInterface
         //地图(玩家集合)
         public Dictionary<int, List<object>> m_Players = new Dictionary<int, List<object>>();
 
-        public void AddPlayer(int MapId,object player)
+        public void AddPlayer(int MapId, object player)
         {
             m_Players[MapId].Add(player);
         }
 
-        public void Remove(int MapId,object player)
+        public void Remove(int MapId, object player)
         {
             m_Players[MapId].Remove(player);
         }

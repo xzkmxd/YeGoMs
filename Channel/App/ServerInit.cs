@@ -62,32 +62,41 @@ namespace ChannelServer.App
 
             var serviceProxyGenerater = serviceProvider.GetRequiredService<IServiceProxyGenerater>();
             var serviceProxyFactory = serviceProvider.GetRequiredService<IServiceProxyFactory>();
-            var services = serviceProxyGenerater.GenerateProxys(new[] { typeof(ChannelInterface) }).ToArray();
-
-            //创建IUserService的代理。
-            ChannelInterface userService = serviceProxyFactory.CreateProxy<ChannelInterface>(services.Single(typeof(ChannelInterface).IsAssignableFrom));
-            
-
-            Task.Run(async () =>
+           
+            try
             {
-                Console.WriteLine("开启!!!");
+                //var services = serviceProxyGenerater.GenerateProxys(new[] { typeof(ChannelInterface) }).ToArray();
+                var UserIces = serviceProxyGenerater.GenerateProxys(new[] { typeof(WroldInterface) }).ToArray();
+                //创建IUserService的代理。
+                //ChannelInterface userService = serviceProxyFactory.CreateProxy<ChannelInterface>(services.Single(typeof(ChannelInterface).IsAssignableFrom));
+                WroldInterface userService1 = serviceProxyFactory.CreateProxy<WroldInterface>(UserIces.Single(typeof(WroldInterface).IsAssignableFrom));
+
+                /*
+                Task.Run(async () =>
+                {
+                    Console.WriteLine("开启!!!");
                 //await userService.JoinUser(new UserModel { Age = 100, Name = "你好!" }))
                 ChannelModel channel = new ChannelModel(1000);
-                ReturnState state = (await userService.RegisterServices(channel));
-                Console.WriteLine("开启!!!5555");
+                    ReturnState state = (await userService.RegisterServices(channel));
+                    Console.WriteLine("开启!!!5555");
 
-                if (state.Error == 0)
-                {
-                    config.Port = state.Port;
-                    config.Index = state.Index;
-                }
-                else
-                {
-                    Console.WriteLine("注册失败!!!");
-                }
+                    if (state.Error == 0)
+                    {
+                        config.Port = state.Port;
+                        config.Index = state.Index;
+                    }
+                    else
+                    {
+                        Console.WriteLine("注册失败!!!");
+                    }
 
 
-            }).Wait();
+                }).Wait();
+                */
+            }catch(Exception e)
+            {
+                Console.WriteLine("错误:" + e.Message);
+            }
         }
     }
 }

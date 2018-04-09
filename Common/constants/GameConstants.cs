@@ -4,8 +4,10 @@ using System.Text;
 
 namespace Common.constants
 {
+    public delegate void QuitServer();
     public class GameConstants
     {
+        public static QuitServer _QuitServer;
         private static long[] exp = new long[201];
 
 
@@ -44,5 +46,22 @@ namespace Common.constants
                 exp[i] = (long)((exp[i - 1]) * 1.0548);
             }
         }
+
+
+    }
+
+    public enum WroldName
+    {
+        蓝蜗牛,
+        蘑菇仔,
+        绿水灵,
+        漂漂猪,
+        小青蛇,
+        红螃蟹,
+        大海龟,
+        章鱼怪,
+        顽皮猴,
+        星精灵,
+        胖企鹅,
     }
 }

@@ -16,15 +16,15 @@ using System.Threading;
 using System.Xml;
 using Common.Handler;
 using System.Runtime.InteropServices;
-
+using Common.constants;
 
 namespace ServerApp
 {
-    public delegate bool ConsoleCtrlDelegate(int dwCtrlType);
-
+    public delegate bool ConsoleCtrlDelegate(int dwCtrlType);        
 
     class Program
     {
+        
 
         [DllImport("kernel32.dll")]
         private static extern bool SetConsoleCtrlHandler(ConsoleCtrlDelegate handlerRoutine, bool add);
@@ -51,6 +51,10 @@ namespace ServerApp
                     case CtrlCloseEvent:
                         {
                             Console.WriteLine("正在保存数据中....");
+                            if(GameConstants._QuitServer!=null)
+                            {
+                                GameConstants._QuitServer();//.Invoke();
+                            }
                             break;
                         }
                 }
@@ -118,8 +122,8 @@ namespace ServerApp
                 case "ChannelServer":
                     LoadConfig(args[0], true).Wait();
                     break;
-                case "WorldServer":
-                    LoadConfig(args[0], true).Wait();
+                case "WorldServer":                    
+                    LoadConfig(args[0], true,true).Wait();
                     break;
                 case "GameServer":
                 case "DBServer":
@@ -137,7 +141,7 @@ namespace ServerApp
         }
 
         #region 加载配置且开启服务
-        static async Task LoadConfig(string args, bool isChannel = false)
+        static async Task LoadConfig(string args, bool isChannel = false,bool isWorld = false)
         {
 
             await Task.Run(() =>
@@ -146,6 +150,10 @@ namespace ServerApp
                 AssemblyObj = assembly.CreateInstance(args + ".App.ServerInit");
 
             });
+            if(isWorld)
+            {
+                while (true) ;
+            }
 
             if (isChannel)
             {

@@ -24,6 +24,7 @@ namespace LoginServer.App
     public class ServerInit: ServerInterface
     {
         AppConfig config;
+        static Services.LoginServices services;
 
         /// <summary>
         /// 获取配置
@@ -36,6 +37,7 @@ namespace LoginServer.App
 
         public ServerInit()
         {
+            services = new Services.LoginServices();
             //运行脚本
             //Script.RunFile("Script\\Text.lua");
             //在C#中定义Lua全局脚本
@@ -87,8 +89,11 @@ namespace LoginServer.App
 
             Console.WriteLine("事件注册数量:{0}", CommonGlobal.mHandler.Count);
 
+
+            
+
             //以下是定时器例子
-            Text().Wait();
+            //Text().Wait();
         }
 
         [MoonSharpUserData]

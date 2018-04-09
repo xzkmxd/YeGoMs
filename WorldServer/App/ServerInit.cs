@@ -1,4 +1,5 @@
-﻿using Common.ServicesInterface;
+﻿using Common.constants;
+using Common.ServicesInterface;
 using Microsoft.Extensions.DependencyInjection;
 using Rabbit.Rpc;
 using Rabbit.Rpc.Address;
@@ -14,51 +15,14 @@ using System.Threading.Tasks;
 namespace WorldServer.App
 {
     class ServerInit:Common.Handler.ServerInterface
-    {       
+    {
+        static WorldServer.Services.WorldServices services;
 
         public ServerInit()
         {
-
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            var serviceCollection = new ServiceCollection();
-            var builder = serviceCollection
-                .AddLogging()
-                .AddRpcCore()
-                .AddClientRuntime()
-                .AddServiceRuntime()
-                .UseSharedFileRouteManager("d:\\routes.txt");
-
-            builder.UseDotNettyTransport();
-
-            serviceCollection.AddTransient<ChannelInterface, ChannelServices>();
-            IServiceProvider serviceProvider = null;
-            serviceProvider = serviceCollection.BuildServiceProvider();
-
-            //serviceProvider.GetRequiredService<ILoggerFactory>()
-            //    .AddConsole((c, l) => (int)l >= 3);
-
-            {
-                var serviceEntryManager = serviceProvider.GetRequiredService<IServiceEntryManager>();
-                var addressDescriptors = serviceEntryManager.GetEntries().Select(i => new ServiceRoute
-                {
-                    Address = new[] { new IpAddressModel { Ip = "127.0.0.1", Port = 9981 } },
-                    ServiceDescriptor = i.Descriptor
-                });
-
-                var serviceRouteManager = serviceProvider.GetRequiredService<IServiceRouteManager>();
-                serviceRouteManager.SetRoutesAsync(addressDescriptors).Wait();
-            }
-
-            var serviceHost = serviceProvider.GetRequiredService<IServiceHost>();
-
-            Task.Factory.StartNew(async () =>
-            {
-                //启动主机
-                await serviceHost.StartAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 9981));
-                Console.WriteLine($"服务端启动成功，{DateTime.Now}。");
-            }).Wait();
-            Console.ReadLine();
-
+            services = new WorldServer.Services.WorldServices();
+            //监控退出函数(因该是世界服务器.所以只是向登陆服务器进行注销对象.且没有进行全部玩家保存数据.)
+            GameConstants._QuitServer += services.QuitServer;
         }
 
         public object GetAppConfig()

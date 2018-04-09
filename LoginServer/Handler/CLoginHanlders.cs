@@ -6,6 +6,7 @@ using Common.Buffer;
 using Common.Client;
 using Common.Client.SQL;
 using Common.Handle;
+using Common.ServicesInterface;
 using Common.Sql;
 using LoginServer.Opcode;
 using LoginServer.Packet;
@@ -54,7 +55,11 @@ namespace LoginServer.Handler
                 //TODO:登陆请求(50%)
                 client.UserInfo = UserInfo;
                 client.SendDatat(LoginPakcet.getAuthSuccessRequest(UserInfo));
-                client.SendDatat(LoginPakcet.getServerList());
+                //发送全部世界..
+                for(int i = 0;i< WroldServices.m_WroldList.Count;i++)
+                {
+                    client.SendDatat(LoginPakcet.getServerList(i, WroldServices.m_WroldList[i]));
+                }
                 client.SendDatat(LoginPakcet.getEndOfServerList());
             }
 

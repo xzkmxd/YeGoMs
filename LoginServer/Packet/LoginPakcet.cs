@@ -2,6 +2,7 @@
 using Common.Buffer;
 using Common.Client;
 using Common.Client.SQL;
+using Common.ServicesInterface;
 using LoginServer.Opcode;
 using System;
 using System.Collections.Generic;
@@ -157,13 +158,13 @@ namespace LoginServer.Packet
             //05 00 05 00 C3 B0 58 B5 BA 02 08 00 C0 B6 CE CF C5 A3 2D 31 00 00 00 00 00 00 00 08 00 C0 B6 CE CF C5 A3 2D 32 00 00 00 00 00 01 00
             using (MapleBuffer buffer = new MapleBuffer())
             {
-                buffer.add<byte>(0);//世界ID
+                buffer.add<byte>(0);//小区名称(0：蓝蜗牛,1: 蘑菇仔,2: 绿水灵...)
                 buffer.add<string>("027");//世界名称
                 buffer.add<byte>(2);//频道个数
                 for (int i = 0; i < 2; i++)
                 {
                     buffer.add<string>("Chal1-" + i);//广告牌
-                    buffer.add<int>(0);//人数?
+                    buffer.add<int>(0);//在线人数.
                     buffer.add<byte>(0);//世界ID
                     buffer.add<byte>(0);//频道ID
                     buffer.add<byte>(0);
@@ -172,6 +173,29 @@ namespace LoginServer.Packet
                 return new MaplePakcet(buffer.ToArray());
             }
         }
+
+        [PacketHead(SendOpcode.服务器列表, typeof(SendOpcode))]
+        public static MaplePakcet getServerList(int id,WroldModel worldModel)
+        {
+            //05 00 05 00 C3 B0 58 B5 BA 02 08 00 C0 B6 CE CF C5 A3 2D 31 00 00 00 00 00 00 00 08 00 C0 B6 CE CF C5 A3 2D 32 00 00 00 00 00 01 00
+            using (MapleBuffer buffer = new MapleBuffer())
+            {
+                buffer.add<byte>((byte)id);//小区名称(0：蓝蜗牛,1: 蘑菇仔,2: 绿水灵...)
+                buffer.add<string>("027");//世界名称
+                buffer.add<byte>((byte)worldModel.m_ChannelList.Count);//频道个数
+                for (int i = 0; i < worldModel.m_ChannelList.Count; i++)
+                {
+                    buffer.add<string>("" + i);//广告牌
+                    buffer.add<int>(0);//在线人数.
+                    buffer.add<byte>(0);//世界ID
+                    buffer.add<byte>(0);//频道ID
+                    buffer.add<byte>(0);
+                }
+
+                return new MaplePakcet(buffer.ToArray());
+            }
+        }
+
 
         /// <summary>
         /// 获取服务器列表结束
