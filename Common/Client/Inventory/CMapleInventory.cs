@@ -97,6 +97,19 @@ namespace Common.Client.Inventory
             Sql.MySqlFactory.GetFactory.Insert<CItem>(item);
         }
 
+        /// <summary>
+        /// 加载数据
+        /// </summary>
+        /// <param name="cid"></param>
+        public void Load(int cid)
+        {
+            List<CItem> items = Sql.MySqlFactory.GetFactory.Query<CItem>().Where(a => a.Cid == cid && a.InventoryType == (int)type).ToList();
+            foreach(CItem item in items)
+            {
+                this.Inventory.Add((short)item.Position, item);
+            }
+        }
+
         public void SevsDB()
         {
             foreach(KeyValuePair<short,CItem> item in Inventory)

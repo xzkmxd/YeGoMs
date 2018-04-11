@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 using Quartz.Impl;
 using Rabbit.Rpc;
+using Rabbit.Rpc.Codec.ProtoBuffer;
 using Rabbit.Rpc.ProxyGenerator;
 using Rabbit.Transport.DotNetty;
 using System;
@@ -16,8 +17,8 @@ namespace WorldServer.Services
 {
     public class WorldServices
     {
-        WroldInterface userService;
-        static WroldModel wrold;
+        static Common.ServicesInterface.WorldInterface sWorldService;
+        static Common.ServicesInterface.WorldInfo sWroldInfo;
         int WorldId = 0;
         public WorldServices()
         {
@@ -26,7 +27,7 @@ namespace WorldServer.Services
             var builder = serviceCollection
                 .AddLogging()
                 .AddClient()
-                .UseSharedFileRouteManager("d:\\routes.txt");
+                .UseSharedFileRouteManager("d:\\Login.txt");
 
             IServiceProvider serviceProvider = null;
             builder.UseDotNettyTransport();
@@ -34,19 +35,21 @@ namespace WorldServer.Services
 
             var serviceProxyGenerater = serviceProvider.GetRequiredService<IServiceProxyGenerater>();
             var serviceProxyFactory = serviceProvider.GetRequiredService<IServiceProxyFactory>();
-            var services = serviceProxyGenerater.GenerateProxys(new[] { typeof(Common.ServicesInterface.WroldInterface) }).ToArray();
+            var services = serviceProxyGenerater.GenerateProxys(new[] { typeof(Common.ServicesInterface.WorldInterface) }).ToArray();
 
             //创建IUserService的代理。
-            userService = serviceProxyFactory.CreateProxy<Common.ServicesInterface.WroldInterface>(services.Single(typeof(Common.ServicesInterface.WroldInterface).IsAssignableFrom));
+            sWorldService = serviceProxyFactory.CreateProxy<Common.ServicesInterface.WorldInterface>(services.Single(typeof(Common.ServicesInterface.WorldInterface).IsAssignableFrom));
 
 
             Task.Run(async () =>
             {
-                wrold = new WroldModel();
-                wrold = await userService.RegisterServices(wrold);
-                WorldId = await userService.GetSize();
-                Console.WriteLine("本服务器编号:" + wrold.ID + " 服务器名称:" + WroldModel.GetName(wrold.ID));
-                Console.Title += " " + WroldModel.GetName(WorldId);                
+
+                sWroldInfo = new WorldInfo();
+                sWroldInfo = await sWorldService.RegisterWorld(sWroldInfo);
+                Console.WriteLine("本服务器编号:" + sWroldInfo.WorldId + " 服务器名称:" + sWroldInfo.Name);
+                Console.Title += " " + sWroldInfo.Name;
+                ChannelEntity.world = sWorldService;
+                ChannelEntity.worldEntity = sWroldInfo;
             }).Wait();
 
             WorldEvent().ConfigureAwait(true);            
@@ -58,7 +61,7 @@ namespace WorldServer.Services
             {
                 Task.Run(async () =>
                 {
-                    await userService.RemoveWorld(wrold.ID);
+                    await sWorldService.RemoveWorld(sWroldInfo.WorldId);
                 }).Wait();
             }
             catch (Exception e)

@@ -93,7 +93,7 @@ namespace LoginServer.Config
 
             XmlWriterSettings writerSetting = new XmlWriterSettings //声明编写器设置
             {
-                Indent = true,//定义xml格式，自动创建新的行
+                Indent = true,//定义xml格式,自动创建新的行
                 Encoding = UTF8Encoding.UTF8,//编码格式
                 OmitXmlDeclaration = true,//去掉版本号
             };

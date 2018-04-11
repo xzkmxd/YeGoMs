@@ -1,5 +1,7 @@
 ﻿using ChannelServer.Config;
+using ChannelServer.Services;
 using Common.Attribute;
+using Common.constants;
 using Common.Global;
 using Common.Handle;
 using Common.ServicesInterface;
@@ -19,6 +21,7 @@ namespace ChannelServer.App
     public class ServerInit:Common.Handler.ServerInterface
     {
         AppConfig config;
+        ChannelServer.Services.ChannelServices channelServices;
         public object GetAppConfig()
         {
             return config;
@@ -26,6 +29,8 @@ namespace ChannelServer.App
 
         public ServerInit()
         {
+            
+
             config = AppConfig.Load();
             if (config == null)
             {
@@ -49,54 +54,9 @@ namespace ChannelServer.App
 
             Console.WriteLine("事件注册数量:{0}", CommonGlobal.mHandler.Count);
 
-            var serviceCollection = new ServiceCollection();
+            channelServices = new Services.ChannelServices(config);
 
-            var builder = serviceCollection
-                .AddLogging()
-                .AddClient()
-                .UseSharedFileRouteManager("d:\\routes.txt");
-
-            IServiceProvider serviceProvider = null;
-            builder.UseDotNettyTransport();
-            serviceProvider = serviceCollection.BuildServiceProvider();
-
-            var serviceProxyGenerater = serviceProvider.GetRequiredService<IServiceProxyGenerater>();
-            var serviceProxyFactory = serviceProvider.GetRequiredService<IServiceProxyFactory>();
-           
-            try
-            {
-                //var services = serviceProxyGenerater.GenerateProxys(new[] { typeof(ChannelInterface) }).ToArray();
-                var UserIces = serviceProxyGenerater.GenerateProxys(new[] { typeof(WroldInterface) }).ToArray();
-                //创建IUserService的代理。
-                //ChannelInterface userService = serviceProxyFactory.CreateProxy<ChannelInterface>(services.Single(typeof(ChannelInterface).IsAssignableFrom));
-                WroldInterface userService1 = serviceProxyFactory.CreateProxy<WroldInterface>(UserIces.Single(typeof(WroldInterface).IsAssignableFrom));
-
-                /*
-                Task.Run(async () =>
-                {
-                    Console.WriteLine("开启!!!");
-                //await userService.JoinUser(new UserModel { Age = 100, Name = "你好!" }))
-                ChannelModel channel = new ChannelModel(1000);
-                    ReturnState state = (await userService.RegisterServices(channel));
-                    Console.WriteLine("开启!!!5555");
-
-                    if (state.Error == 0)
-                    {
-                        config.Port = state.Port;
-                        config.Index = state.Index;
-                    }
-                    else
-                    {
-                        Console.WriteLine("注册失败!!!");
-                    }
-
-
-                }).Wait();
-                */
-            }catch(Exception e)
-            {
-                Console.WriteLine("错误:" + e.Message);
-            }
+            GameConstants._QuitServer += channelServices.QuitServer;
         }
     }
 }

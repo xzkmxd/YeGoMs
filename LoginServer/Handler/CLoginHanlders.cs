@@ -10,6 +10,7 @@ using Common.ServicesInterface;
 using Common.Sql;
 using LoginServer.Opcode;
 using LoginServer.Packet;
+using LoginServer.Services.Entity;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -56,9 +57,9 @@ namespace LoginServer.Handler
                 client.UserInfo = UserInfo;
                 client.SendDatat(LoginPakcet.getAuthSuccessRequest(UserInfo));
                 //发送全部世界..
-                for(int i = 0;i< WroldServices.m_WroldList.Count;i++)
+                for(int i = 0;i< WorldEntity.GetWorld().Count;i++)
                 {
-                    client.SendDatat(LoginPakcet.getServerList(i, WroldServices.m_WroldList[i]));
+                    client.SendDatat(LoginPakcet.getServerList(WorldEntity.GetWorld()[i]));
                 }
                 client.SendDatat(LoginPakcet.getEndOfServerList());
             }

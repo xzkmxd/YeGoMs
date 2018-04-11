@@ -175,20 +175,21 @@ namespace LoginServer.Packet
         }
 
         [PacketHead(SendOpcode.服务器列表, typeof(SendOpcode))]
-        public static MaplePakcet getServerList(int id,WroldModel worldModel)
+        public static MaplePakcet getServerList(WorldInfo worldModel)
         {
             //05 00 05 00 C3 B0 58 B5 BA 02 08 00 C0 B6 CE CF C5 A3 2D 31 00 00 00 00 00 00 00 08 00 C0 B6 CE CF C5 A3 2D 32 00 00 00 00 00 01 00
             using (MapleBuffer buffer = new MapleBuffer())
             {
-                buffer.add<byte>((byte)id);//小区名称(0：蓝蜗牛,1: 蘑菇仔,2: 绿水灵...)
+                buffer.add<byte>((byte)worldModel.WorldId);//小区名称(0：蓝蜗牛,1: 蘑菇仔,2: 绿水灵...)
                 buffer.add<string>("027");//世界名称
-                buffer.add<byte>((byte)worldModel.m_ChannelList.Count);//频道个数
-                for (int i = 0; i < worldModel.m_ChannelList.Count; i++)
+                buffer.add<byte>((byte)worldModel.channelInfo.Count);//频道个数
+                for(int i = 0;i< worldModel.channelInfo.Count;i++)
                 {
-                    buffer.add<string>("" + i);//广告牌
-                    buffer.add<int>(0);//在线人数.
-                    buffer.add<byte>(0);//世界ID
-                    buffer.add<byte>(0);//频道ID
+                    ChannelInfo info = worldModel.channelInfo[i];
+                    buffer.add<string>(info.Name+"_"+i);//广告牌
+                    buffer.add<int>(info.Players);//在线人数.
+                    buffer.add<byte>((byte)worldModel.WorldId);//世界ID
+                    buffer.add<byte>((byte)i);//频道ID
                     buffer.add<byte>(0);
                 }
 

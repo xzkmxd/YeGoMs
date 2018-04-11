@@ -2,7 +2,7 @@
   "profiles": {
     "ServerApp": {
       "commandName": "Project",
-      "commandLineArgs": "WorldServer",
+      "commandLineArgs": "ChannelServer",
       "workingDirectory": "..\\\\bin\\netcoreapp2.0\\"
     }
   }

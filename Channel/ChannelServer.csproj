@@ -12,8 +12,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Handler\" />
-    <Folder Include="Packet\" />
     <Folder Include="script\NPC\" />
     <Folder Include="script\Event\" />
     <Folder Include="script\Portal\" />

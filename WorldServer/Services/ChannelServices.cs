@@ -1,9 +1,6 @@
-﻿using Common.ServicesInterface;
-using LoginServer.Services.Entity;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Rabbit.Rpc;
 using Rabbit.Rpc.Address;
-using Rabbit.Rpc.Codec.ProtoBuffer;
 using Rabbit.Rpc.Routing;
 using Rabbit.Rpc.Runtime.Server;
 using Rabbit.Transport.DotNetty;
@@ -14,14 +11,11 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LoginServer.Services
+namespace WorldServer.Services
 {
-    /// <summary>
-    /// 注册世界监听服务
-    /// </summary>
-    public class LoginServices
+    public class ChannelServices
     {
-        public LoginServices()
+        public ChannelServices()
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             var serviceCollection = new ServiceCollection();
@@ -29,15 +23,11 @@ namespace LoginServer.Services
                 .AddLogging()
                 .AddRpcCore()
                 .AddServiceRuntime()
-                .UseSharedFileRouteManager("d:\\Login.txt")
-                .UseDotNettyTransport()
-                ;
-
-
-            //serviceCollection.AddTransient<ChannelInterface, ChannelServices>();
+                .UseSharedFileRouteManager("d:\\WorldServer.txt")
+                .UseDotNettyTransport();
 
             //serviceCollection.AddTransient<Common.ServicesInterface.ChannelInterface, Common.ServicesInterface.ChannelServices>();
-            serviceCollection.AddTransient<WorldInterface,WorldEntity>();
+            serviceCollection.AddTransient<Common.ServicesInterface.ChannelInterface,Common.ServicesInterface.ChannelEntity>();
 
             IServiceProvider serviceProvider = null;
             serviceProvider = serviceCollection.BuildServiceProvider();
@@ -49,7 +39,7 @@ namespace LoginServer.Services
                 var serviceEntryManager = serviceProvider.GetRequiredService<IServiceEntryManager>();
                 var addressDescriptors = serviceEntryManager.GetEntries().Select(i => new ServiceRoute
                 {
-                    Address = new[] { new IpAddressModel { Ip = "127.0.0.1", Port = 9981 } },
+                    Address = new[] { new IpAddressModel { Ip = "127.0.0.1", Port = 9982 } },
                     ServiceDescriptor = i.Descriptor
                 });
 
@@ -62,10 +52,9 @@ namespace LoginServer.Services
             Task.Factory.StartNew(async () =>
             {
                 //启动主机
-                await serviceHost.StartAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 9981));
+                await serviceHost.StartAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 9982));
                 Console.WriteLine($"监听世界开启,{DateTime.Now}。");
             }).Wait();
         }
-
     }
 }

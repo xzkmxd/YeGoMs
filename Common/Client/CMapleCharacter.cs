@@ -36,16 +36,21 @@ namespace Common.Client
             }
         }
 
-
-        public static CCharacter LoadData(int UserId)
+        public static CCharacter LoadData(int UserId,CMapleClient client)
         {
-            CCharacter character = Sql.MySqlFactory.GetFactory.Query<CCharacter>().Where(a => a.Userid == UserId).FirstOrDefault();
+            CCharacter character = Sql.MySqlFactory.GetFactory.Query<CCharacter>().Where(a => a.Id == UserId).FirstOrDefault();
 
             if (character != null)
             {
                 //设置上下文跟踪实体
                 Sql.MySqlFactory.GetFactory.TrackEntity(character);
+                client.CharacterInfo = new CMapleCharacter(character);
+                foreach(CMapleInventory inv in client.CharacterInfo.inventory)
+                {
+                    inv.Load(character.Id);
+                }
             }
+
             return character;
         }
 
@@ -78,7 +83,7 @@ namespace Common.Client
 
         public void SaveData()
         {
-            //然后调用 Update 方法，这时只会更新被修改过的属性
+            //然后调用 Update 方法,这时只会更新被修改过的属性
             Sql.MySqlFactory.GetFactory.Update<CCharacter>(character);
         }
 
