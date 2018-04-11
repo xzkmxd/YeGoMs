@@ -9,17 +9,18 @@ using System.Text;
 
 namespace ChannelServer.Packet
 {
-    class PlayerPakcet
+    public class PlayerPakcet
     {
 
-        [PacketHead(SendOpcode.服务器公告,typeof(SendOpcode))]
-        public static MaplePakcet ServerMessage(int type,string Message,int channel = 0,bool megaEar = false)
+        //TODO:游戏公告(10%)
+        [PacketHead(SendOpcode.服务器公告, typeof(SendOpcode))]
+        public static MaplePakcet ServerMessage(int type, string Message, int channel = 0, bool megaEar = false)
         {
             using (MapleBuffer buffer = new MapleBuffer())
             {
                 buffer.add<byte>((byte)type);
                 buffer.add<string>(Message);
-                switch(type)
+                switch (type)
                 {
                     case 3:
                         buffer.add<byte>((byte)channel);
@@ -30,12 +31,13 @@ namespace ChannelServer.Packet
             }
         }
 
-        [PacketHead(SendOpcode.进入游戏,typeof(SendOpcode))]
-        public static MaplePakcet GetCharInfo(CCharacter chr, CMapleClient client)
+        //TODO:进入游戏(20%)
+        [PacketHead(SendOpcode.进入游戏, typeof(SendOpcode))]
+        public static MaplePakcet GetCharInfo(int Channelid, CCharacter chr, CMapleClient client)
         {
             using (MapleBuffer buffer = new MapleBuffer())
             {
-                buffer.add<int>(0);//频道
+                buffer.add<int>(Channelid);//频道
                 buffer.add<byte>(0);
                 buffer.add<byte>(1);
                 buffer.add<int>(new System.Random().Next());
@@ -43,12 +45,12 @@ namespace ChannelServer.Packet
                 buffer.add<int>(new System.Random().Next());
                 buffer.add<int>(0);
 
-                AddCharacterInfo(buffer, chr,client);
+                AddCharacterInfo(buffer, chr, client);
                 return new MaplePakcet(buffer.ToArray());
             }
         }
 
-        public static void AddCharacterInfo(MapleBuffer buffer,CCharacter chr, CMapleClient client)
+        public static void AddCharacterInfo(MapleBuffer buffer, CCharacter chr, CMapleClient client)
         {
             buffer.add<short>(-1);
             AddCharStats(buffer, chr, client);
@@ -66,7 +68,7 @@ namespace ChannelServer.Packet
             buffer.add<short>(0);
             //戒指
             buffer.add<short>(0);
-            for(int i =0;i<5;i++)
+            for (int i = 0; i < 5; i++)
             {
                 buffer.add<int>(0);
             }
@@ -109,20 +111,20 @@ namespace ChannelServer.Packet
             List<CItem> equipped = new List<CItem>();
             List<CItem> equippedCash = new List<CItem>();
             //判断是否点装..
-            foreach(KeyValuePair<short,CItem> item in chr.GetMapleInventory(Common.Client.Inventory.InventoryType.佩戴).getInventory())
+            foreach (KeyValuePair<short, CItem> item in chr.GetMapleInventory(Common.Client.Inventory.InventoryType.佩戴).getInventory())
             {
-                if (item.Key < 0 && item.Key >-100)
+                if (item.Key < 0 && item.Key > -100)
                 {
                     equipped.Add(item.Value);
                 }
-                else if(item.Key <= -100 && item.Key > -1000)
+                else if (item.Key <= -100 && item.Key > -1000)
                 {
                     equippedCash.Add(item.Value);
                 }
             }
 
             //装备
-            foreach(CItem item in equipped)
+            foreach (CItem item in equipped)
             {
                 AddItemInfo(buffer, item);
             }
@@ -171,9 +173,23 @@ namespace ChannelServer.Packet
 
         }
 
-        public static void AddItemInfo(MapleBuffer buffer,CItem item)
+        //TODO:道具信息(0%)
+        public static void AddItemInfo(MapleBuffer buffer, CItem item)
         {
             //buffer.add<int>
+        }
+
+        //TODO:聊天信息(100%)
+        [PacketHead(SendOpcode.聊天信息, typeof(SendOpcode))]
+        public static MaplePakcet GetChatText(int cid, string Text, bool whiteBG = false)
+        {
+            using (MapleBuffer buffer = new MapleBuffer())
+            {
+                buffer.add<int>(cid);
+                buffer.add<byte>(whiteBG ? (byte)1 : (byte)0);//是否显示说话对话框
+                buffer.add<string>(Text);
+                return new MaplePakcet(buffer.ToArray());
+            }
         }
 
     }

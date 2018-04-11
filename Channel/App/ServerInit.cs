@@ -1,4 +1,5 @@
-﻿using ChannelServer.Config;
+﻿using ChannelServer.Commands;
+using ChannelServer.Config;
 using ChannelServer.Services;
 using Common.Attribute;
 using Common.constants;
@@ -29,7 +30,7 @@ namespace ChannelServer.App
 
         public ServerInit()
         {
-            
+            CommandProcessor.Processor.Init();
 
             config = AppConfig.Load();
             if (config == null)

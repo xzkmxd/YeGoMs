@@ -1,5 +1,6 @@
 ﻿using Channel.Opcode;
 using ChannelServer.Packet;
+using ChannelServer.Services;
 using Common.Attribute;
 using Common.Buffer;
 using Common.Client;
@@ -20,10 +21,12 @@ namespace ChannelServer.Handler
             int cid = mapleBuffer.read<int>();
 
             //加载角色信息
-            CCharacter mapleCharacter = CMapleCharacter.LoadData(cid,client);
-            client.SendDatat(PlayerPakcet.GetCharInfo(mapleCharacter, client));
+            CCharacter mapleCharacter = CMapleCharacter.LoadData(cid, client);
+            client.SendDatat(PlayerPakcet.GetCharInfo(ChannelServices.ChannelId, mapleCharacter, client));
             Console.WriteLine("角色信息:" + mapleCharacter.Name);
 
         }
     }
+
+    
 }

@@ -7,5 +7,7 @@ namespace Channel.Opcode
     public enum RecvOpcode: byte
     {
         登陆请求 = 6,
+        游戏聊天 = 31,
+
     }
 }

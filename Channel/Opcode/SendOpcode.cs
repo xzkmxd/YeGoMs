@@ -28,6 +28,7 @@ namespace Channel.Opcode
 
         进入游戏=0x2B,
         进入商城,
+        聊天信息=0x43,
 
 
     }
