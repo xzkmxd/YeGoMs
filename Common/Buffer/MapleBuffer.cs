@@ -136,7 +136,7 @@ namespace Common.Buffer
                     WriteByte((Boolean.Parse(bufferx.ToString())) ?  (byte)1 : (byte)0);
                     break;
                 case "System.Byte":
-                    WriteByte(byte.Parse(bufferx.ToString()));
+                    WriteByte((byte)(int.Parse(bufferx.ToString()) & 0xFF));
                     break;
                 default:
                     throw new BufferException("Error No Type:" + type.ToString());

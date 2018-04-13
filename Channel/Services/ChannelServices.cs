@@ -3,6 +3,7 @@ using Common.ServicesInterface;
 using Microsoft.Extensions.DependencyInjection;
 using Rabbit.Rpc;
 using Rabbit.Rpc.ProxyGenerator;
+using Rabbit.Rpc.Runtime.Server;
 using Rabbit.Transport.DotNetty;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace ChannelServer.Services
 {
     public class ChannelServices
     {
-        Common.ServicesInterface.ChannelInterface sChannelService;
+        public static Common.ServicesInterface.ChannelInterface sChannelService;
         public static int ChannelId { get; set; }
         ChannelInfo channel = null;
         public ChannelServices(AppConfig appConfig)
@@ -43,8 +44,8 @@ namespace ChannelServer.Services
                 channel = new ChannelInfo();
                 channel.Name = "测试区";
                 channel.Players = 500;
+                channel.Address = "127.0.0.1";
                 RetType state = (await sChannelService.RegisterChannel(channel));
-
                 if (state.Error == 0)
                 {
                     appConfig.Port = (short)state.Port;

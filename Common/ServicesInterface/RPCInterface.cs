@@ -1,6 +1,7 @@
 ﻿using Rabbit.Rpc.Runtime.Server.Implementation.ServiceDiscovery.Attributes;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,6 +24,9 @@ namespace Common.ServicesInterface
 
         public int Id { get; set; }
 
+        public string Address { get; set; }
+
+        public short port { get; set; }
     }
 
     /// <summary>
@@ -54,6 +58,7 @@ namespace Common.ServicesInterface
         public int Port { get; set; }
         public int UID { get; set; }
         public int Error { get; set; }
+        public string Address { get; set; }
     }
 
     [RpcServiceBundle]
@@ -226,7 +231,8 @@ namespace Common.ServicesInterface
         public static List<ChannelInfo> m_ChannelList = new List<ChannelInfo>();
         public Task<ChannelInfo> GetChannelInfo(int ChannelId)
         {
-            return Task.FromResult(m_ChannelList[ChannelId]);
+            ChannelInfo channel = (from b in m_ChannelList where b.Id == ChannelId select b).First<ChannelInfo>();
+            return Task.FromResult(channel);
         }
 
         public Task<RetType> RegisterChannel(ChannelInfo info)
@@ -241,6 +247,7 @@ namespace Common.ServicesInterface
             {
                 ret.Port = 7575 + m_ChannelList.Count;
                 ret.UID = m_ChannelList.Count;
+                info.port = (short)ret.Port;
                 m_ChannelList.Add(info);
             }
             Console.WriteLine("进行注册频道{0}", ret.UID);

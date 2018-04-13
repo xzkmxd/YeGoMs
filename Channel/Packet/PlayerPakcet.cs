@@ -50,6 +50,7 @@ namespace ChannelServer.Packet
             }
         }
 
+        //TODO:玩家信息(100%)
         public static void AddCharacterInfo(MapleBuffer buffer, CCharacter chr, CMapleClient client)
         {
             buffer.add<short>(-1);
@@ -76,6 +77,7 @@ namespace ChannelServer.Packet
 
         }
 
+        //TODO:角色基础信息(90%)
         public static void AddCharStats(MapleBuffer buffer, CCharacter chr, CMapleClient client)
         {
             buffer.add<int>(chr.Id);
@@ -105,7 +107,7 @@ namespace ChannelServer.Packet
             buffer.add<long>(0);
         }
 
-
+        //TODO:道具信息(100%)
         public static void AddInventoryInfo(MapleBuffer buffer, CMapleCharacter chr)
         {
             List<CItem> equipped = new List<CItem>();
@@ -170,13 +172,113 @@ namespace ChannelServer.Packet
             }
 
             buffer.add<byte>(0);//7
-
         }
 
-        //TODO:道具信息(0%)
+        //TODO:其他类型道具(100%)
+        public static void AddOtherItemInfo(MapleBuffer buffer, CItem item)
+        {
+            AddBaseItemHeader(buffer, item);
+            buffer.add<short>((short)item.Quantity);
+            buffer.add<string>(item.Owner);
+        }
+
+        //TODO:道具基础头部(100%)
+        public static void AddBaseItemHeader(MapleBuffer buffer, CItem item)
+        {
+            buffer.add<int>(item.ItemId);
+            buffer.add<byte>(item.Uniqueid > 0 ? (byte)1 : (byte)0);
+            if (item.Uniqueid > 0)
+            {
+                buffer.add<long>(item.Uniqueid);
+            }
+            buffer.addTime(Common.constants.GameConstants.getTime(item.Expiredate));            //到期时间
+        }
+
+
+        //TODO:道具信息(30%)
         public static void AddItemInfo(MapleBuffer buffer, CItem item)
         {
             //buffer.add<int>
+            short Posin = (short)item.Position;
+            if(Posin <= -1)
+            {
+                Posin *= -1;
+                if(Posin > 100 && Posin <1000)
+                {
+                    Posin -= 100;
+                }
+            }
+            buffer.add<byte>((byte)Posin);
+
+            if (false)//宠物道具信息
+            {
+
+            }
+            else
+            {
+                if (item.Type == 0 || item.Type == 1)//0:佩戴,1装备
+                {
+                    //装备道具数据
+                    CEquip equip = Common.Sql.MySqlFactory.GetFactory.Query<CEquip>().Where(a => a.InventoryitemsId == item.Id).FirstOrDefault();
+                    if (equip == null)
+                    {
+                        AddBaseItemHeader(buffer, item);
+                        buffer.add<byte>(0);
+                        buffer.add<byte>(0);
+                        buffer.add<short>(0);
+                        buffer.add<short>(0);
+                        buffer.add<short>(0);
+                        buffer.add<short>(0);
+                        buffer.add<short>(0);
+                        buffer.add<short>(0);
+                        buffer.add<short>(0);
+                        buffer.add<short>(0);
+                        buffer.add<short>(0);
+                        buffer.add<short>(0);
+                        buffer.add<short>(0);
+                        buffer.add<short>(0);
+                        buffer.add<short>(0);
+                        buffer.add<short>(0);
+                        buffer.add<short>(0);
+                        buffer.add<string>("");
+                    }
+                    else
+                    {
+                        AddBaseItemHeader(buffer, item);
+                        AddEquipItemInfo(buffer, equip);
+                    }
+
+                }
+                else
+                {
+                    //其他道具数据
+                    AddOtherItemInfo(buffer, item);
+                }
+            }
+
+        }
+
+        //TODO:装备信息(50%)
+        private static void AddEquipItemInfo(MapleBuffer buffer, CEquip equip)
+        {
+            buffer.add<byte>((byte)equip.UpgradeSlots);
+            buffer.add<byte>((byte)equip.Level);
+            buffer.add<short>((short)equip.Str);
+            buffer.add<short>((short)equip.Dex);
+            buffer.add<short>((short)equip.Int);
+            buffer.add<short>((short)equip.Luk);
+            buffer.add<short>((short)equip.Hp);
+            buffer.add<short>((short)equip.Mp);
+            buffer.add<short>((short)equip.Watk);
+            buffer.add<short>((short)equip.Matk);
+            buffer.add<short>((short)equip.Wdef);
+            buffer.add<short>((short)equip.Mdef);
+            buffer.add<short>((short)equip.Acc);
+            buffer.add<short>((short)equip.Avoid);
+            buffer.add<short>((short)equip.Hands);
+            buffer.add<short>((short)equip.Speed);
+            buffer.add<short>((short)equip.Jump);
+            buffer.add<string>(equip.Owner);
         }
 
         //TODO:聊天信息(100%)
@@ -191,6 +293,96 @@ namespace ChannelServer.Packet
                 return new MaplePakcet(buffer.ToArray());
             }
         }
+
+        //TODO:暂时未增加获取IP和端口功能(100%)..
+        [PacketHead(SendOpcode.更换频道, typeof(SendOpcode))]
+        public static MaplePakcet GetChannelChange(string Address, short port)
+        {
+            using (MapleBuffer buffer = new MapleBuffer())
+            {
+                buffer.add<byte>(1);
+                string[] adds = Address.Split(".");
+                foreach (string add in adds)
+                {
+                    buffer.add(byte.Parse(add.ToString()));//IP地址
+                }
+                buffer.add<short>(port);
+                return new MaplePakcet(buffer.ToArray());
+            }
+        }
+
+
+        [PacketHead(SendOpcode.召唤玩家,typeof(SendOpcode),5)]
+        public static MaplePakcet SpawnPlayer(CMapleCharacter chr)
+        {
+            using (MapleBuffer buffer = new MapleBuffer())
+            {
+                buffer.add<int>(chr.character.Id+1);
+                buffer.add<string>(chr.character.Name);
+                buffer.add<int>(0);//Buffmask
+                addCharLook(buffer, chr);
+                buffer.add<int>(0);
+                buffer.add<int>(0);//getItemEffect
+                buffer.add<int>(0);
+                buffer.add<short>((short)chr.GetPoint().X);
+                buffer.add<short>((short)chr.GetPoint().Y);
+                buffer.add<byte>(chr.GetStance());
+                buffer.add<short>(0);
+                buffer.add(new byte[3]);
+                return new MaplePakcet(buffer.ToArray());
+            }
+        }
+
+        public static void addCharLook(MapleBuffer buffer, CMapleCharacter chr)
+        {
+            buffer.add<byte>(0);//性别
+            buffer.add<byte>((byte)chr.character.Skin);
+            buffer.add<int>(chr.character.Face);
+            buffer.add<byte>(0);
+            buffer.add<int>(chr.character.Hair);
+
+            List<CItem> equipped = new List<CItem>();
+            List<CItem> equippedCash = new List<CItem>();
+            //判断是否点装..
+            foreach (KeyValuePair<short, CItem> item in chr.GetMapleInventory(Common.Client.Inventory.InventoryType.佩戴).getInventory())
+            {
+                if (item.Key < 0 && item.Key > -100)
+                {
+                    equipped.Add(item.Value);
+                }
+                else if (item.Key <= -100 && item.Key > -1000)
+                {
+                    equippedCash.Add(item.Value);
+                }
+            }
+
+            //装备
+            foreach (CItem item in equipped)
+            {
+                buffer.add<byte>((byte)item.Position);
+                buffer.add<int>(item.ItemId);
+            }
+            buffer.add<byte>(0xFF);//1
+            //现金装备
+            foreach (CItem item in equippedCash)
+            {
+                buffer.add<byte>((byte)item.Position);
+                buffer.add<int>(item.ItemId);
+            }
+            buffer.add<int>(0);//宠物??
+        }
+
+
+        [PacketHead(SendOpcode.删除玩家,typeof(SendOpcode),100)]
+        public static MaplePakcet RemovePlayer(int cid)
+        {
+            using (MapleBuffer buffer = new MapleBuffer())
+            {
+                buffer.add<int>(cid);
+                return new MaplePakcet(buffer.ToArray());
+            }
+        }
+
 
     }
 }

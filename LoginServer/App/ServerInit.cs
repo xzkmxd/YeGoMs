@@ -78,9 +78,12 @@ namespace LoginServer.App
                 Attribute attribute = t.GetCustomAttribute(typeof(PacketHead), true);
                 if (attribute != null)
                 {
-                    HandlerInterface @interface = (HandlerInterface)Assembly.GetExecutingAssembly().CreateInstance(t.FullName);
-                    CommonGlobal.mHandler.Add(((PacketHead)attribute).Head, @interface);
-                    Console.WriteLine("注册事件:{0}-{1}",System.Enum.GetName(typeof(Opcode.RecvOpcode), ((PacketHead)attribute).Head),@interface.ToString());
+                    if(((PacketHead)attribute).Type.Equals(typeof(Opcode.RecvOpcode)))
+                    {
+                        HandlerInterface @interface = (HandlerInterface)Assembly.GetExecutingAssembly().CreateInstance(t.FullName);
+                        CommonGlobal.mHandler.Add(((PacketHead)attribute).Head, @interface);
+                        Console.WriteLine("注册事件:[{0}] - [{1}] - [进度:{2}%]", System.Enum.GetName(typeof(Opcode.RecvOpcode), ((PacketHead)attribute).Head), t.Name, ((PacketHead)attribute).Progress);
+                    }
                 }
             }
 

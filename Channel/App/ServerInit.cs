@@ -1,5 +1,6 @@
 ﻿using ChannelServer.Commands;
 using ChannelServer.Config;
+using ChannelServer.Map;
 using ChannelServer.Services;
 using Common.Attribute;
 using Common.constants;
@@ -46,9 +47,12 @@ namespace ChannelServer.App
                 Attribute attribute = t.GetCustomAttribute(typeof(PacketHead), true);
                 if (attribute != null)
                 {
-                    HandlerInterface @interface = (HandlerInterface)Assembly.GetExecutingAssembly().CreateInstance(t.FullName);
-                    CommonGlobal.mHandler.Add(((PacketHead)attribute).Head, @interface);
-                    Console.WriteLine("注册事件:{0}-{1}", System.Enum.GetName(typeof(Channel.Opcode.RecvOpcode), ((PacketHead)attribute).Head), @interface.ToString());
+                    if (((PacketHead)attribute).Type.Equals(typeof(Channel.Opcode.RecvOpcode)))
+                    {
+                        HandlerInterface @interface = (HandlerInterface)Assembly.GetExecutingAssembly().CreateInstance(t.FullName);
+                        CommonGlobal.mHandler.Add(((PacketHead)attribute).Head, @interface);
+                        Console.WriteLine("注册事件:[{0}] - [{1}] - [进度:{2}%]", System.Enum.GetName(typeof(Channel.Opcode.RecvOpcode), ((PacketHead)attribute).Head), t.Name, ((PacketHead)attribute).Progress);
+                    }
                 }
             }
 #endregion
@@ -58,6 +62,11 @@ namespace ChannelServer.App
             channelServices = new Services.ChannelServices(config);
 
             GameConstants._QuitServer += channelServices.QuitServer;
+
+            //初始化地图数据
+            MapleMapFactory.Init();
+            Console.WriteLine("加载完毕!");
+
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Common.Client.SQL;
+using Common.constants;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,13 +10,13 @@ namespace Common.Client.Inventory
     public enum InventoryType
     {
         佩戴,
-        未知,
         装备,
         消耗,
         设置,
         其他,
         现金,
-        仓库
+        仓库,
+        未知,
     }
 
     /// <summary>
@@ -24,7 +25,7 @@ namespace Common.Client.Inventory
     public class CMapleInventory
     {
         private Dictionary<short, CItem> Inventory;
-        private byte slotLimit  = 32;
+        private byte slotLimit = 32;
         /// <summary>
         /// 道具栏
         /// </summary>
@@ -95,6 +96,31 @@ namespace Common.Client.Inventory
             //}
             this.Inventory.Add((short)item.Position, item);
             Sql.MySqlFactory.GetFactory.Insert<CItem>(item);
+            if (constants.GameConstants.GetInventoryType(item.ItemId) == InventoryType.装备 || constants.GameConstants.GetInventoryType(item.ItemId) == InventoryType.佩戴)
+            {
+                Sql.MySqlFactory.GetFactory.Insert<CEquip>(new CEquip()
+                {
+                    Acc = GameConstants.GetRandStat(10, 20),
+                    Avoid = GameConstants.GetRandStat(10, 20),
+                    Dex = GameConstants.GetRandStat(10, 20),
+                    Hands = GameConstants.GetRandStat(10, 20),
+                    Hp = GameConstants.GetRandStat(10, 20),
+                    Int = GameConstants.GetRandStat(10, 20),
+                    Jump = GameConstants.GetRandStat(10, 20),
+                    InventoryitemsId = item.Id,
+                    Level = 0,
+                    Luk = GameConstants.GetRandStat(10, 20),
+                    Matk = GameConstants.GetRandStat(10, 20),
+                    Mp = GameConstants.GetRandStat(10, 20),
+                    Mdef = GameConstants.GetRandStat(10, 20),
+                    Speed = GameConstants.GetRandStat(10, 20),
+                    Str = GameConstants.GetRandStat(10, 20),
+                    Watk = GameConstants.GetRandStat(10, 20),
+                    Wdef = GameConstants.GetRandStat(10, 20),
+                    Owner = "",
+                });
+            }
+
         }
 
         /// <summary>
@@ -104,7 +130,7 @@ namespace Common.Client.Inventory
         public void Load(int cid)
         {
             List<CItem> items = Sql.MySqlFactory.GetFactory.Query<CItem>().Where(a => a.Cid == cid && a.InventoryType == (int)type).ToList();
-            foreach(CItem item in items)
+            foreach (CItem item in items)
             {
                 this.Inventory.Add((short)item.Position, item);
             }
@@ -112,7 +138,7 @@ namespace Common.Client.Inventory
 
         public void SevsDB()
         {
-            foreach(KeyValuePair<short,CItem> item in Inventory)
+            foreach (KeyValuePair<short, CItem> item in Inventory)
             {
                 int xxx = Sql.MySqlFactory.GetFactory.Query<CItem>().Where(a => (a.Cid == item.Value.Cid && a.Id == item.Value.Id)).Count();
                 if (xxx > 0)
@@ -141,7 +167,7 @@ namespace Common.Client.Inventory
         /// <param name="slot"></param>
         public void setSlotLimit(byte slot)
         {
-            if(slot > maxSlot)
+            if (slot > maxSlot)
             {
                 slot = maxSlot;
             }
@@ -165,9 +191,9 @@ namespace Common.Client.Inventory
         /// <returns></returns>
         public CItem FindById(int ItemId)
         {
-            foreach(KeyValuePair<short,CItem> item in Inventory)
+            foreach (KeyValuePair<short, CItem> item in Inventory)
             {
-                if(item.Value.ItemId == ItemId)
+                if (item.Value.ItemId == ItemId)
                 {
                     return item.Value;
                 }

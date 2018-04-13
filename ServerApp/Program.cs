@@ -99,31 +99,14 @@ namespace ServerApp
                 case "Common":
                 case "LoginServer":
                     {
-                        LoadConfig(args[0]).ConfigureAwait(true);
-
-                        while (Run)
-                        {
-                            string linet = System.Console.ReadLine();
-                            switch (linet)
-                            {
-                                case "Exit":
-                                    Environment.Exit(0);
-                                    break;
-                                case "Test":
-                                    assembly = Assembly.Load(System.IO.File.ReadAllBytes(@"" + AppPath + "\\" + args[0] + ".dll"));
-                                    assembly.CreateInstance(args[0] + ".App.ServerInit");
-                                    break;
-                            }
-
-                        }
-
+                        LoadConfig(args[0]).ConfigureAwait(true);                       
                         break;
                     }
                 case "ChannelServer":
                     LoadConfig(args[0], true).Wait();
                     break;
                 case "WorldServer":                    
-                    LoadConfig(args[0], true,true).Wait();
+                    LoadConfig(args[0], true,true).ConfigureAwait(true);
                     break;
                 case "GameServer":
                 case "DBServer":
@@ -135,6 +118,22 @@ namespace ServerApp
                     Console.WriteLine("启动错误!");
                     break;
             }
+
+            while (Run)
+            {
+                string linet = System.Console.ReadLine();
+                switch (linet)
+                {
+                    case "Exit":
+                        Environment.Exit(0);
+                        break;
+                    case "Test":
+                        assembly = Assembly.Load(System.IO.File.ReadAllBytes(@"" + AppPath + "\\" + args[0] + ".dll"));
+                        assembly.CreateInstance(args[0] + ".App.ServerInit");
+                        break;
+                }
+            }
+
             #endregion
 #endif
 
@@ -150,24 +149,21 @@ namespace ServerApp
                 AssemblyObj = assembly.CreateInstance(args + ".App.ServerInit");
 
             });
-            if(isWorld)
+            if(!isWorld)
             {
-                while (true) ;
-            }
-
-            if (isChannel)
-            {
-                //获取World的端口
-                short login = ((AppConfigInterface)((Common.Handler.ServerInterface)AssemblyObj).GetAppConfig()).GetPort();
-                System.Console.WriteLine("频道端口:{0}", login);
-                RunServerAsync(login, args).Wait();//.Start();
-                while (true) ;
-            }
-            else
-            {
-                short login = ((AppConfigInterface)((Common.Handler.ServerInterface)AssemblyObj).GetAppConfig()).GetPort();
-                System.Console.WriteLine("登陆端口:{0}", login);
-                RunServerAsync(login, args).Wait();//.Start();
+                if (isChannel)
+                {
+                    //获取World的端口
+                    short login = ((AppConfigInterface)((Common.Handler.ServerInterface)AssemblyObj).GetAppConfig()).GetPort();
+                    System.Console.WriteLine("频道端口:{0}", login);
+                    RunServerAsync(login, args).Wait();//.Start();
+                }
+                else
+                {
+                    short login = ((AppConfigInterface)((Common.Handler.ServerInterface)AssemblyObj).GetAppConfig()).GetPort();
+                    System.Console.WriteLine("登陆端口:{0}", login);
+                    RunServerAsync(login, args).Wait();//.Start();
+                }
             }
         }
         #endregion
@@ -208,7 +204,16 @@ namespace ServerApp
 
                 // bootstrap绑定到指定端口的行为 就是服务端启动服务,同样的Serverbootstrap可以bind到多个端口
                 IChannel boundChannel = await bootstrap.BindAsync(Port);
-                while (true) ;
+                while (Run)
+                {
+                    string linet = System.Console.ReadLine();
+                    switch (linet)
+                    {
+                        case "Exit":
+                            Environment.Exit(0);
+                            break;
+                    }
+                }
 
                 //关闭服务
                 //await boundChannel.CloseAsync();

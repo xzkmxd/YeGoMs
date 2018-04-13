@@ -19,7 +19,7 @@ namespace LoginServer.Handler
 {
 
 
-    [PacketHead(RecvOpcode.帐号登录, typeof(RecvOpcode))]
+    [PacketHead(RecvOpcode.帐号登录, typeof(RecvOpcode),5)]
     public class CUserLogin : HandlerInterface
     {
         public override void Handle(MapleBuffer mapleBuffer, CMapleClient client)
@@ -57,7 +57,7 @@ namespace LoginServer.Handler
                 client.UserInfo = UserInfo;
                 client.SendDatat(LoginPakcet.getAuthSuccessRequest(UserInfo));
                 //发送全部世界..
-                for(int i = 0;i< WorldEntity.GetWorld().Count;i++)
+                for (int i = 0; i < WorldEntity.GetWorld().Count; i++)
                 {
                     client.SendDatat(LoginPakcet.getServerList(WorldEntity.GetWorld()[i]));
                 }
@@ -68,7 +68,7 @@ namespace LoginServer.Handler
     }
 
 
-    [PacketHead(RecvOpcode.帐号注册, typeof(RecvOpcode))]
+    [PacketHead(RecvOpcode.帐号注册, typeof(RecvOpcode),100)]
     public class RegisterUserHandler : HandlerInterface
     {
         public override void Handle(MapleBuffer mapleBuffer, CMapleClient client)
@@ -117,7 +117,7 @@ namespace LoginServer.Handler
     }
 
 
-    [PacketHead(RecvOpcode.帐号检查, typeof(RecvOpcode))]
+    [PacketHead(RecvOpcode.帐号检查, typeof(RecvOpcode),100)]
     public class CheckUserHanlder : HandlerInterface
     {
         public override void Handle(MapleBuffer mapleBuffer, CMapleClient client)
@@ -142,7 +142,7 @@ namespace LoginServer.Handler
     }
 
 
-    [PacketHead(RecvOpcode.大区选择, typeof(RecvOpcode))]
+    [PacketHead(RecvOpcode.大区选择, typeof(RecvOpcode),5)]
     public class SeleServerList : HandlerInterface
     {
         public override void Handle(MapleBuffer mapleBuffer, CMapleClient client)
@@ -155,7 +155,7 @@ namespace LoginServer.Handler
     }
 
 
-    [PacketHead(RecvOpcode.请求角色, typeof(RecvOpcode))]
+    [PacketHead(RecvOpcode.请求角色, typeof(RecvOpcode),5)]
     public class RequestPlayer : HandlerInterface
     {
         public override void Handle(MapleBuffer mapleBuffer, CMapleClient client)
@@ -175,7 +175,7 @@ namespace LoginServer.Handler
 
 
 
-    [PacketHead(RecvOpcode.检测名字, typeof(RecvOpcode))]
+    [PacketHead(RecvOpcode.检测名字, typeof(RecvOpcode),100)]
     public class CheckName : HandlerInterface
     {
         public override void Handle(MapleBuffer mapleBuffer, CMapleClient client)
@@ -186,7 +186,7 @@ namespace LoginServer.Handler
         }
     }
 
-    [PacketHead(RecvOpcode.创建角色, typeof(RecvOpcode))]
+    [PacketHead(RecvOpcode.创建角色, typeof(RecvOpcode),90)]
     public class CreatorPlayer : HandlerInterface
     {
         public override void Handle(MapleBuffer mapleBuffer, CMapleClient client)
@@ -213,27 +213,27 @@ namespace LoginServer.Handler
             };
 
             int[] Euqip = new int[4];
-            for(int i =0;i<Euqip.Length;i++)
+            for (int i = 0; i < Euqip.Length; i++)
             {
                 Euqip[i] = mapleBuffer.read<int>();
             }
-            Dictionary<byte, int> dictionary = new Dictionary<byte, int>();
+            Dictionary<short, int> dictionary = new Dictionary<short, int>();
 
-            for(int i = 0;i<Euqip.Length;i++)
+            for (int i = 0; i < Euqip.Length; i++)
             {
-                switch(i)
+                switch (i)
                 {
                     case 0:
-                        dictionary.Add(5, Euqip[i]);
+                        dictionary.Add(-5, Euqip[i]);
                         break;
                     case 1:
-                        dictionary.Add(6, Euqip[i]);
+                        dictionary.Add(-6, Euqip[i]);
                         break;
                     case 2:
-                        dictionary.Add(7, Euqip[i]);
+                        dictionary.Add(-7, Euqip[i]);
                         break;
                     case 3:
-                        dictionary.Add(9, Euqip[i]);
+                        dictionary.Add(-9, Euqip[i]);
                         break;
                 }
             }
@@ -245,14 +245,14 @@ namespace LoginServer.Handler
             character.Int_ = mapleBuffer.read<byte>();
             character.Luk = mapleBuffer.read<byte>();
 
-            if (CMapleCharacter.CreatorPlayer(client.UserInfo.Id,client, character, dictionary))
+            if (CMapleCharacter.CreatorPlayer(client.UserInfo.Id, client, character, dictionary))
             {
                 client.SendDatat(LoginPakcet.AddPlayer(client, character));
             }
         }
     }
 
-    [PacketHead(RecvOpcode.开始游戏, typeof(RecvOpcode))]
+    [PacketHead(RecvOpcode.开始游戏, typeof(RecvOpcode),50)]
     public class StartGame : HandlerInterface
     {
         public override void Handle(MapleBuffer mapleBuffer, CMapleClient client)

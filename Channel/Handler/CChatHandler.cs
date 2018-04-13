@@ -10,7 +10,7 @@ using System.Text;
 
 namespace ChannelServer.Handler
 {
-    [PacketHead(RecvOpcode.游戏聊天, typeof(RecvOpcode))]
+    [PacketHead(RecvOpcode.游戏聊天, typeof(RecvOpcode),30)]
     public class CChatMessageHanlde : HandlerInterface
     {
         public override void Handle(MapleBuffer mapleBuffer, CMapleClient client)

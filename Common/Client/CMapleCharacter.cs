@@ -1,5 +1,7 @@
-﻿using Common.Client.Inventory;
+﻿using Common.Buffer;
+using Common.Client.Inventory;
 using Common.Client.SQL;
+using Common.ServicesInterface;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,8 +11,9 @@ using System.Text;
 /// </summary>
 namespace Common.Client
 {
-    public class CMapleCharacter
+    public class CMapleCharacter:ServicesInterface.AnimatedMapleMapObject
     {
+        public CMapleClient client { get; set; }
         public CCharacter character { get; set; }
 
         //道具数据
@@ -40,12 +43,14 @@ namespace Common.Client
         {
             CCharacter character = Sql.MySqlFactory.GetFactory.Query<CCharacter>().Where(a => a.Id == UserId).FirstOrDefault();
 
+
             if (character != null)
             {
                 //设置上下文跟踪实体
                 Sql.MySqlFactory.GetFactory.TrackEntity(character);
                 client.CharacterInfo = new CMapleCharacter(character);
-                foreach(CMapleInventory inv in client.CharacterInfo.inventory)
+                client.CharacterInfo.client = client;
+                foreach (CMapleInventory inv in client.CharacterInfo.inventory)
                 {
                     inv.Load(character.Id);
                 }
@@ -93,7 +98,7 @@ namespace Common.Client
         /// <param name="Userid"></param>
         /// <param name="character"></param>
         /// <returns></returns>
-        public static bool CreatorPlayer(int Userid,CMapleClient client, CCharacter character, Dictionary<byte, int> EquipList)
+        public static bool CreatorPlayer(int Userid,CMapleClient client, CCharacter character, Dictionary<short, int> EquipList)
         {
             CCharacter ret = Common.Sql.MySqlFactory.GetFactory.Insert<CCharacter>(character);
             if (ret != null)
@@ -113,7 +118,7 @@ namespace Common.Client
                 client.CharacterInfo = new CMapleCharacter(ret);
 
                 
-                foreach(KeyValuePair<byte,int> itmeid in EquipList)
+                foreach(KeyValuePair<short,int> itmeid in EquipList)
                 {
                     CItem item = new CItem();
                     item.ItemId = itmeid.Value;
@@ -129,5 +134,26 @@ namespace Common.Client
             return false;
         }
 
+        public void AddMapPlayer()
+        {
+
+        }
+
+        public override void SendDestroyData(CMapleClient c, MaplePakcet pakcet)
+        {
+            //删除玩家
+            c.SendDatat(pakcet);
+        }
+
+        public override void SendSpawnData(CMapleClient c, MaplePakcet pakcet)
+        {
+            //注册玩家
+            c.SendDatat(pakcet);
+        }
+
+        public override MapleMapObjectType GetType()
+        {
+            return MapleMapObjectType.PLAYER;
+        }
     }
 }

@@ -4,8 +4,9 @@ using System.Text;
 
 namespace Channel.Opcode
 {
-    public enum SendOpcode:byte
+    public enum SendOpcode : byte
     {
+        更换频道 = 0x0E,
         道具信息 = 0x17,
         更新道具,
         更新能力值,
@@ -26,9 +27,14 @@ namespace Channel.Opcode
         服务器公告,
 
 
-        进入游戏=0x2B,
+        进入游戏 = 0x2B,
         进入商城,
-        聊天信息=0x43,
+
+        召唤玩家 = 0x40,
+        删除玩家,
+        未知0x42,
+        聊天信息,
+        
 
 
     }

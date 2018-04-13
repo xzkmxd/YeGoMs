@@ -1,12 +1,96 @@
-﻿using System;
+﻿using Common.Client.Inventory;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Common.constants
 {
+
+
     public delegate void QuitServer();
     public class GameConstants
     {
+        private static long FT_UT_OFFSET = 116444520000000000L;
+        public static long MAX_TIME = 150842304000000000L;
+        public static long ZERO_TIME = 94354848000000000L;
+        public static long PERMANENT = 150841440000000000L;
+
+        public static int GetRandStat(short defaultValue, int maxRange)
+        {
+            if (defaultValue == 0)
+            {
+                return 0;
+            }
+
+            int lMaxRange = (int)Math.Min(Math.Ceiling(defaultValue * 0.1D), maxRange);
+            return (short)(defaultValue - lMaxRange + new Random().Next(lMaxRange * 2 + 1));
+        }
+
+        /// <summary>
+        /// 获取道具类型
+        /// </summary>
+        /// <param name=""></param>
+        /// <param name="itemId"></param>
+        /// <returns></returns>
+        public static InventoryType GetInventoryType(int itemId)
+        {
+            byte type = (byte)(itemId / 1000000);
+            if (type < 1 || type > 5)
+            {
+                return InventoryType.未知;
+            }
+            return System.Enum.Parse<InventoryType>(System.Enum.GetName(typeof(InventoryType),type));// InventoryType.getByType(type);
+        }
+
+        //public static bool isDST()
+        //{
+        //    return SimpleTimeZone.getDefault().inDaylightTime(new Date());
+        //}
+
+        public static long getFileTimestamp(long timeStampinMillis, bool roundToMinutes)
+        {
+            //if (isDST())
+            //{
+            //    timeStampinMillis -= 3600000L;
+            //}
+            timeStampinMillis += 50400000L;
+            long time;
+            if (roundToMinutes)
+            {
+                time = timeStampinMillis / 1000L / 60L * 600000000L;
+            }
+            else
+            {
+                time = timeStampinMillis * 10000L;
+            }
+            return time + FT_UT_OFFSET;
+        }
+
+        public static long getFileTimestamp(long timeStampinMillis)
+        {
+            return getFileTimestamp(timeStampinMillis, false);
+        }
+
+
+        public static long getTime(long realTimestamp)
+        {
+            if (realTimestamp == -1L)
+            {
+                return MAX_TIME;
+            }
+            if (realTimestamp == -2L)
+            {
+                return ZERO_TIME;
+            }
+            if (realTimestamp == -3L)
+            {
+                return PERMANENT;
+            }
+            return getFileTimestamp(realTimestamp);
+        }
+
+
+
         public static QuitServer _QuitServer;
         private static long[] exp = new long[201];
 

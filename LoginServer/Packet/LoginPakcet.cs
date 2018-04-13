@@ -291,21 +291,55 @@ namespace LoginServer.Packet
 
                 foreach (KeyValuePair<short, CItem> Equip in client.CharacterInfo.GetMapleInventory(Common.Client.Inventory.InventoryType.佩戴).getInventory())
                 {
-                    buffer.add<byte>(byte.Parse(Equip.Key.ToString()));
-                    buffer.add<int>(Equip.Value.ItemId);
+                    short Posint = (short)(Equip.Key * -1);
+                    if(Posint < 100)
+                    {
+                        buffer.add<byte>((byte)(int.Parse(Posint.ToString()) & 0xFF));
+                        buffer.add<int>(Equip.Value.ItemId);
+                    }
                 }
             }
             else
             {
                 foreach (KeyValuePair<short, CItem> Equip in dictionary)
                 {
-                    buffer.add<byte>(byte.Parse(Equip.Key.ToString()));
-                    buffer.add<int>(Equip.Value.ItemId);
+                    short Posint = (short)(Equip.Key * -1);
+                    if (Posint < 100)
+                    {
+                        buffer.add<byte>((byte)(int.Parse(Posint.ToString()) & 0xFF));
+                        buffer.add<int>(Equip.Value.ItemId);
+                    }
                 }
             }
             
 
             buffer.add<byte>(0);
+
+            if (client.CharacterInfo != null)
+            {
+
+                foreach (KeyValuePair<short, CItem> Equip in client.CharacterInfo.GetMapleInventory(Common.Client.Inventory.InventoryType.佩戴).getInventory())
+                {
+                    short Posint = (short)(Equip.Key * -1);
+                    if (Posint > 100)
+                    {
+                        buffer.add<byte>((byte)(int.Parse(Posint.ToString()) & 0xFF));
+                        buffer.add<int>(Equip.Value.ItemId);
+                    }
+                }
+            }
+            else
+            {
+                foreach (KeyValuePair<short, CItem> Equip in dictionary)
+                {
+                    short Posint = (short)(Equip.Key * -1);
+                    if (Posint > 100)
+                    {
+                        buffer.add<byte>((byte)(int.Parse(Posint.ToString()) & 0xFF));
+                        buffer.add<int>(Equip.Value.ItemId);
+                    }
+                }
+            }
 
             //Dictionary<byte, int> maskedEquip = new Dictionary<byte, int>();
             //maskedEquip.Add(1, 1002067);
